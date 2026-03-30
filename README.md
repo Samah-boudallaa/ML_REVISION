@@ -27,9 +27,10 @@ Cette plateforme propose une expérience moderne et intuitive pour préparer les
 
 ## Structure du projet
 ML_REVISION/
-│
-├── machine_learning_revision.html # Application complète
-└── README.md # Documentation
+
+    │
+    ├── machine_learning_revision.html # Application complète
+    └── README.md # Documentation
 
 Le projet fonctionne avec un seul fichier HTML autonome contenant tout le code (HTML, CSS, JavaScript).
 
@@ -59,6 +60,7 @@ machine_learning_revision.html
 ```
 Aucune installation supplémentaire n’est nécessaire.
 
+---
 ## Contenu pédagogique
 ### Modules théoriques
 - Régression linéaire
@@ -67,22 +69,27 @@ Aucune installation supplémentaire n’est nécessaire.
 - Arbres de décision
 - SVM (Support Vector Machine)
 - Évaluation des modèles
+---
 ### Exercices
 - Exercices guidés étape par étape
 - Calculs et interprétations
 - Cas pratiques
+---
 ### QCM interactifs
 - Questions à choix multiples
 - Correction instantanée
 - Explications détaillées
+---
 ### Flashcards
 - Révision rapide
 - Concepts essentiels
 - Formules importantes
+---
 ### Simulations d’examen
 - Examen complet
 - Examen rapide (20 minutes)
 - Gestion du temps avec timer
+---
 ### Design et interface
 Interface moderne inspirée des dashboards
 Design responsive
