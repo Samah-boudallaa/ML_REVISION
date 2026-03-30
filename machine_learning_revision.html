@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Revision — Machine Learning S4</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg2: #111827;
+  --bg3: #1a2236;
+  --bg4: #1e2d45;
+  --card: #131d2e;
+  --border: #1f3048;
+  --accent: #00d4ff;
+  --accent2: #7c3aed;
+  --accent3: #10b981;
+  --accent4: #f59e0b;
+  --accent5: #ef4444;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --correct: #10b981;
+  --wrong: #ef4444;
+  --partial: #f59e0b;
+  --glow: 0 0 20px rgba(0,212,255,0.15);
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --radius: 12px;
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --body: 'Inter', sans-serif;
+}
+[data-theme="light"] {
+  --bg: #f0f4f8;
+  --bg2: #e8eef5;
+  --bg3: #dce5ef;
+  --bg4: #ccd8e8;
+  --card: #ffffff;
+  --border: #c5d3e0;
+  --text: #1e293b;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --glow: 0 0 20px rgba(0,100,180,0.1);
+  --shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s,color 0.3s;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--accent2);border-radius:3px;}
+
+/* HEADER */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:60px;
+  backdrop-filter:blur(12px);
+}
+.logo{font-family:var(--display);font-weight:800;font-size:1.2rem;letter-spacing:-0.5px;}
+.logo span{color:var(--accent);}
+.header-right{display:flex;align-items:center;gap:12px;}
+
+/* THEME TOGGLE */
+.toggle-wrap{display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--text2);}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;}
+.slider{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--bg3);border:1px solid var(--border);border-radius:12px;transition:0.3s;}
+.slider:before{content:"";position:absolute;height:18px;width:18px;left:2px;bottom:2px;background:var(--accent);border-radius:50%;transition:0.3s;}
+input:checked + .slider:before{transform:translateX(20px);background:var(--accent4);}
+
+/* TIMER */
+.timer-box{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:5px 12px;font-family:var(--mono);font-size:0.9rem;
+  cursor:pointer;transition:all 0.2s;
+}
+.timer-box:hover{border-color:var(--accent);}
+.timer-box.running{border-color:var(--accent3);color:var(--accent3);}
+.timer-box.warning{border-color:var(--accent5);color:var(--accent5);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.timer-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);}
+.timer-dot.run{background:var(--accent3);animation:blink 1s infinite;}
+.timer-dot.warn{background:var(--accent5);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+/* MAIN LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 60px);}
+
+/* SIDEBAR */
+.sidebar{
+  width:260px;flex-shrink:0;
+  background:var(--bg2);border-right:1px solid var(--border);
+  padding:16px 0;overflow-y:auto;
+  position:sticky;top:60px;height:calc(100vh - 60px);
+}
+.sidebar-section{margin-bottom:8px;}
+.sidebar-title{
+  font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);padding:4px 16px 8px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 16px;cursor:pointer;transition:all 0.15s;
+  font-size:0.88rem;color:var(--text2);border-left:3px solid transparent;
+}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--bg3);color:var(--accent);border-left-color:var(--accent);}
+.nav-badge{
+  margin-left:auto;font-size:0.7rem;font-family:var(--mono);
+  background:var(--bg4);padding:2px 7px;border-radius:10px;color:var(--text3);
+}
+.nav-item.active .nav-badge{background:rgba(0,212,255,0.1);color:var(--accent);}
+
+/* CONTENT */
+.content{flex:1;padding:32px;max-width:900px;margin:0 auto;width:100%;}
+
+/* PAGE */
+.page{display:none;}
+.page.active{display:block;}
+
+/* HERO */
+.hero{
+  background:linear-gradient(135deg,var(--bg3) 0%,var(--bg4) 100%);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:40px;margin-bottom:28px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:"";position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,212,255,0.08) 0%,transparent 70%);
+}
+.hero h1{font-family:var(--display);font-size:2rem;font-weight:800;margin-bottom:8px;}
+.hero h1 em{font-style:normal;color:var(--accent);}
+.hero p{color:var(--text2);font-size:1rem;max-width:600px;line-height:1.6;}
+.hero-stats{display:flex;gap:20px;margin-top:24px;flex-wrap:wrap;}
+.stat-chip{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:10px 16px;text-align:center;
+}
+.stat-chip .num{font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--accent);}
+.stat-chip .lbl{font-size:0.72rem;color:var(--text3);margin-top:2px;}
+
+/* CARDS */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+@media(max-width:768px){.grid2,.grid3{grid-template-columns:1fr;}.layout{flex-direction:column;}.sidebar{width:100%;position:relative;height:auto;max-height:300px;}}
+
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;transition:all 0.2s;
+}
+.card:hover{border-color:var(--border);box-shadow:var(--shadow);}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-title{font-family:var(--display);font-weight:700;font-size:1rem;}
+.tag{
+  font-size:0.7rem;font-family:var(--mono);padding:3px 8px;border-radius:4px;
+  font-weight:600;
+}
+.tag-blue{background:rgba(0,212,255,0.1);color:var(--accent);border:1px solid rgba(0,212,255,0.2);}
+.tag-purple{background:rgba(124,58,237,0.1);color:#a78bfa;border:1px solid rgba(124,58,237,0.2);}
+.tag-green{background:rgba(16,185,129,0.1);color:var(--accent3);border:1px solid rgba(16,185,129,0.2);}
+.tag-amber{background:rgba(245,158,11,0.1);color:var(--accent4);border:1px solid rgba(245,158,11,0.2);}
+.tag-red{background:rgba(239,68,68,0.1);color:var(--accent5);border:1px solid rgba(239,68,68,0.2);}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 18px;border-radius:8px;border:none;cursor:pointer;
+  font-family:var(--body);font-size:0.88rem;font-weight:600;
+  transition:all 0.2s;text-decoration:none;
+}
+.btn-primary{background:var(--accent);color:#0a0e1a;}
+.btn-primary:hover{opacity:0.85;transform:translateY(-1px);}
+.btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+.btn-outline:hover{background:rgba(0,212,255,0.08);}
+.btn-ghost{background:var(--bg3);color:var(--text);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--bg4);}
+.btn-sm{padding:6px 12px;font-size:0.8rem;}
+.btn-danger{background:var(--accent5);color:white;}
+.btn-success{background:var(--accent3);color:white;}
+
+/* SECTION TITLES */
+.section-title{
+  font-family:var(--display);font-size:1.4rem;font-weight:800;margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+.section-title::after{content:"";flex:1;height:1px;background:var(--border);}
+
+/* THEORY CARDS */
+.theory-block{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:16px;overflow:hidden;
+}
+.theory-header{
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:background 0.15s;
+}
+.theory-header:hover{background:var(--bg3);}
+.theory-header h3{font-family:var(--display);font-weight:700;font-size:0.95rem;}
+.theory-body{padding:0 20px;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s;}
+.theory-block.open .theory-body{padding:0 20px 20px;max-height:2000px;}
+.chevron{transition:transform 0.3s;color:var(--text3);}
+.theory-block.open .chevron{transform:rotate(180deg);}
+
+/* FORMULAS */
+.formula{
+  background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:8px;padding:12px 16px;margin:10px 0;
+  font-family:var(--mono);font-size:0.9rem;line-height:1.7;overflow-x:auto;
+}
+.formula.green{border-left-color:var(--accent3);}
+.formula.purple{border-left-color:var(--accent2);}
+.formula.amber{border-left-color:var(--accent4);}
+
+.note-box{
+  background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);
+  border-radius:8px;padding:12px 16px;margin:10px 0;font-size:0.88rem;color:var(--text2);
+}
+.warn-box{
+  background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);
+  border-radius:8px;padding:12px 16px;margin:10px 0;font-size:0.88rem;color:var(--accent4);
+}
+
+/* QUIZ */
+.quiz-container{max-width:800px;}
+.quiz-progress{
+  display:flex;align-items:center;gap:12px;margin-bottom:20px;
+}
+.progress-bar{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;transition:width 0.4s ease;}
+.progress-label{font-family:var(--mono);font-size:0.8rem;color:var(--text3);white-space:nowrap;}
+
+.question-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;margin-bottom:16px;
+}
+.q-meta{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.q-num{font-family:var(--mono);font-size:0.8rem;color:var(--text3);}
+.q-text{font-size:1rem;line-height:1.6;margin-bottom:18px;font-weight:500;}
+.q-text code{
+  font-family:var(--mono);font-size:0.85em;
+  background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--accent);
+}
+.options{display:flex;flex-direction:column;gap:10px;}
+.option{
+  display:flex;align-items:flex-start;gap:12px;padding:12px 16px;
+  border:1px solid var(--border);border-radius:8px;cursor:pointer;
+  transition:all 0.15s;background:var(--bg);
+}
+.option:hover:not(.locked){background:var(--bg3);border-color:var(--accent);transform:translateX(3px);}
+.option.selected{background:rgba(124,58,237,0.08);border-color:var(--accent2);}
+.option.correct{background:rgba(16,185,129,0.08);border-color:var(--accent3);}
+.option.wrong{background:rgba(239,68,68,0.06);border-color:var(--accent5);}
+.opt-letter{
+  width:26px;height:26px;flex-shrink:0;border-radius:6px;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:0.8rem;font-weight:700;color:var(--text3);
+  transition:all 0.15s;margin-top:1px;
+}
+.option.selected .opt-letter{background:var(--accent2);color:white;border-color:var(--accent2);}
+.option.correct .opt-letter{background:var(--accent3);color:white;border-color:var(--accent3);}
+.option.wrong .opt-letter{background:var(--accent5);color:white;border-color:var(--accent5);}
+.opt-text{font-size:0.9rem;line-height:1.5;}
+
+.explanation{
+  margin-top:14px;padding:14px;background:var(--bg);
+  border:1px solid var(--border);border-radius:8px;font-size:0.88rem;
+  line-height:1.6;color:var(--text2);display:none;
+}
+.explanation.show{display:block;}
+.explanation strong{color:var(--accent);}
+
+.quiz-actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;}
+.quiz-result{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px;text-align:center;
+}
+.result-score{
+  font-family:var(--mono);font-size:3rem;font-weight:700;
+  margin-bottom:8px;
+}
+.result-score.excellent{color:var(--accent3);}
+.result-score.good{color:var(--accent);}
+.result-score.needs-work{color:var(--accent5);}
+.result-msg{font-size:1rem;color:var(--text2);margin-bottom:24px;}
+
+/* EXERCISES */
+.exercise-block{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;margin-bottom:20px;
+}
+.ex-num{
+  display:inline-block;font-family:var(--mono);font-size:0.75rem;
+  background:var(--bg3);border:1px solid var(--border);border-radius:4px;
+  padding:2px 8px;margin-bottom:10px;color:var(--text3);
+}
+.ex-title{font-family:var(--display);font-weight:700;font-size:1rem;margin-bottom:10px;}
+.ex-text{font-size:0.9rem;line-height:1.7;color:var(--text2);margin-bottom:14px;}
+.ex-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:0.85rem;}
+.ex-table th{background:var(--bg3);padding:8px 12px;text-align:left;font-weight:600;border:1px solid var(--border);}
+.ex-table td{padding:8px 12px;border:1px solid var(--border);font-family:var(--mono);}
+.ex-table tr:nth-child(even) td{background:var(--bg2);}
+
+.step-list{list-style:none;counter-reset:step;}
+.step-list li{
+  counter-increment:step;padding:10px 0 10px 42px;position:relative;
+  border-bottom:1px solid var(--border);font-size:0.9rem;line-height:1.6;color:var(--text2);
+}
+.step-list li::before{
+  content:counter(step);position:absolute;left:0;top:8px;
+  width:26px;height:26px;border-radius:6px;background:var(--bg3);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:0.75rem;font-weight:700;color:var(--accent2);
+}
+.step-list li:last-child{border-bottom:none;}
+
+/* CODE BLOCKS */
+.code-block{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:16px;margin:12px 0;font-family:var(--mono);font-size:0.82rem;
+  line-height:1.7;overflow-x:auto;color:var(--text2);
+}
+.code-block .kw{color:#c084fc;}
+.code-block .fn{color:var(--accent);}
+.code-block .str{color:var(--accent3);}
+.code-block .cm{color:var(--text3);font-style:italic;}
+.code-block .num{color:var(--accent4);}
+
+/* EXAM SIM */
+.exam-header{
+  background:linear-gradient(135deg,rgba(239,68,68,0.08),rgba(239,68,68,0.02));
+  border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius);
+  padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;
+}
+.exam-header h2{font-family:var(--display);font-weight:800;font-size:1.1rem;}
+.exam-timer{
+  font-family:var(--mono);font-size:1.5rem;font-weight:700;
+  color:var(--accent5);padding:6px 16px;
+  background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);
+  border-radius:8px;
+}
+.exam-timer.ok{color:var(--accent3);background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.2);}
+.exam-section{margin-bottom:28px;}
+.exam-section-title{
+  font-family:var(--display);font-weight:700;font-size:0.95rem;
+  padding:10px 16px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;margin-bottom:16px;color:var(--accent2);
+}
+.answer-area{
+  width:100%;min-height:80px;background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;padding:12px;color:var(--text);font-family:var(--body);
+  font-size:0.9rem;resize:vertical;transition:border-color 0.15s;
+}
+.answer-area:focus{outline:none;border-color:var(--accent);}
+
+/* SCORE DISPLAY */
+.score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:16px;}
+.score-item{
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:12px;text-align:center;
+}
+.score-item .val{font-family:var(--mono);font-size:1.2rem;font-weight:700;margin-bottom:4px;}
+.score-item .lbl{font-size:0.7rem;color:var(--text3);}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--bg2);padding:4px;border-radius:10px;border:1px solid var(--border);}
+.tab{
+  padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.88rem;
+  font-weight:500;color:var(--text2);transition:all 0.15s;flex:1;text-align:center;
+}
+.tab.active{background:var(--accent);color:#0a0e1a;font-weight:700;}
+.tab:hover:not(.active){background:var(--bg3);color:var(--text);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* MATRIX TABLE */
+.confusion-matrix{display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;margin:12px 0;}
+.cm-cell{
+  padding:12px;text-align:center;border-radius:6px;font-family:var(--mono);font-size:0.9rem;
+}
+.cm-header{background:var(--bg3);font-weight:700;font-size:0.8rem;color:var(--text3);}
+.cm-tp{background:rgba(16,185,129,0.12);color:var(--accent3);font-weight:700;}
+.cm-tn{background:rgba(16,185,129,0.12);color:var(--accent3);font-weight:700;}
+.cm-fp{background:rgba(239,68,68,0.08);color:var(--accent5);}
+.cm-fn{background:rgba(239,68,68,0.08);color:var(--accent5);}
+
+/* ALGO STEPS */
+.algo-steps{display:flex;flex-direction:column;gap:12px;margin:12px 0;}
+.algo-step{
+  display:flex;gap:14px;align-items:flex-start;
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;
+}
+.step-dot{
+  width:32px;height:32px;flex-shrink:0;border-radius:8px;
+  background:var(--bg3);border:1px solid var(--accent2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:0.8rem;font-weight:700;color:var(--accent2);
+}
+.step-content h4{font-size:0.88rem;font-weight:600;margin-bottom:4px;}
+.step-content p{font-size:0.83rem;color:var(--text2);line-height:1.5;}
+
+/* FLASH CARDS */
+.flashcard-wrap{perspective:1000px;margin-bottom:20px;}
+.flashcard{
+  width:100%;height:200px;position:relative;transform-style:preserve-3d;
+  transition:transform 0.6s;cursor:pointer;
+}
+.flashcard.flipped{transform:rotateY(180deg);}
+.card-face{
+  position:absolute;inset:0;backface-visibility:hidden;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  padding:24px;text-align:center;
+}
+.card-back{transform:rotateY(180deg);background:var(--bg3);border-color:var(--accent2);}
+.card-face h3{font-family:var(--display);font-size:1rem;font-weight:700;margin-bottom:8px;}
+.card-face p{font-size:0.88rem;color:var(--text2);line-height:1.5;}
+.card-hint{font-size:0.7rem;color:var(--text3);margin-top:12px;}
+.card-formula{font-family:var(--mono);font-size:0.9rem;color:var(--accent);}
+.fc-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:24px;}
+.fc-counter{font-family:var(--mono);font-size:0.85rem;color:var(--text3);}
+
+/* PROGRESS RINGS */
+.ring-wrap{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;}
+.ring-item{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.ring-svg circle{transition:stroke-dashoffset 1s ease;}
+.ring-label{font-size:0.75rem;color:var(--text3);text-align:center;max-width:80px;}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px;color:var(--text3);}
+.empty h3{font-family:var(--display);font-size:1.1rem;margin-bottom:8px;color:var(--text2);}
+
+/* NOTIFICATION */
+.notif{
+  position:fixed;bottom:24px;right:24px;z-index:200;
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 20px;font-size:0.88rem;
+  box-shadow:var(--shadow);transform:translateY(100px);opacity:0;
+  transition:all 0.3s;pointer-events:none;max-width:300px;
+}
+.notif.show{transform:translateY(0);opacity:1;}
+.notif.success{border-color:var(--accent3);color:var(--accent3);}
+.notif.error{border-color:var(--accent5);color:var(--accent5);}
+.notif.info{border-color:var(--accent);color:var(--accent);}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
+  z-index:300;display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.show{display:flex;}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px;max-width:480px;width:90%;box-shadow:var(--shadow);
+}
+.modal h2{font-family:var(--display);font-weight:800;margin-bottom:12px;}
+.modal p{font-size:0.9rem;color:var(--text2);line-height:1.6;margin-bottom:20px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+/* UTILITY */
+.mt-4{margin-top:16px;}
+.mb-4{margin-bottom:16px;}
+.text-sm{font-size:0.88rem;}
+.text-xs{font-size:0.78rem;}
+.text-muted{color:var(--text2);}
+.text-accent{color:var(--accent);}
+.text-green{color:var(--accent3);}
+.text-red{color:var(--accent5);}
+.text-amber{color:var(--accent4);}
+.flex{display:flex;}
+.items-center{align-items:center;}
+.gap-2{gap:8px;}
+.gap-3{gap:12px;}
+.font-mono{font-family:var(--mono);}
+.hidden{display:none!important;}
+hr.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">ML<span>Revision</span> </div>
+   <div class="header-author"> <a href="https://github.com/Samah-boudallaa/ML_REVISION" target="_blank">github.com/Samah-boudallaa</a></div>
+  <div class="header-right">
+    <!-- TIMER -->
+    <div class="timer-box" id="globalTimer" onclick="toggleTimer()">
+      <div class="timer-dot" id="timerDot"></div>
+      <span id="timerDisplay">00:00:00</span>
+      <button class="btn btn-sm btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="event.stopPropagation();resetTimer()">Reset</button>
+    </div>
+    <!-- DARK/LIGHT -->
+    <div class="toggle-wrap">
+      <span id="themeLabel">Dark</span>
+      <label class="toggle">
+        <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+        <span class="slider"></span>
+      </label>
+      <span>Light</span>
+    </div>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Navigation</div>
+      <div class="nav-item active" onclick="navigate('home')">Accueil <span class="nav-badge">Home</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Cours &amp; Theorie</div>
+      <div class="nav-item" onclick="navigate('theory-regression')">Regression Lineaire <span class="nav-badge">T1</span></div>
+      <div class="nav-item" onclick="navigate('theory-logistic')">Regression Logistique <span class="nav-badge">T2</span></div>
+      <div class="nav-item" onclick="navigate('theory-knn')">KNN <span class="nav-badge">T3</span></div>
+      <div class="nav-item" onclick="navigate('theory-tree')">Arbre de Decision <span class="nav-badge">T4</span></div>
+      <div class="nav-item" onclick="navigate('theory-svm')">SVM <span class="nav-badge">T5</span></div>
+      <div class="nav-item" onclick="navigate('theory-eval')">Evaluation Modeles <span class="nav-badge">T6</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Entrainements Guides</div>
+      <div class="nav-item" onclick="navigate('ex-regression')">Exercices Regression <span class="nav-badge">E1</span></div>
+      <div class="nav-item" onclick="navigate('ex-classification')">Exercices Classification <span class="nav-badge">E2</span></div>
+      <div class="nav-item" onclick="navigate('ex-gradient')">Gradient Descent <span class="nav-badge">E3</span></div>
+      <div class="nav-item" onclick="navigate('ex-evaluation')">Exercices Evaluation <span class="nav-badge">E4</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">QCM Interactifs</div>
+      <div class="nav-item" onclick="navigate('qcm-fondamentaux')">QCM Fondamentaux <span class="nav-badge">Q1</span></div>
+      <div class="nav-item" onclick="navigate('qcm-modeles')">QCM Modeles ML <span class="nav-badge">Q2</span></div>
+      <div class="nav-item" onclick="navigate('qcm-maths')">QCM Calculs <span class="nav-badge">Q3</span></div>
+      <div class="nav-item" onclick="navigate('flashcards')">Flashcards <span class="nav-badge">FC</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Simulation Examen</div>
+      <div class="nav-item" onclick="navigate('exam-blanc')">Examen Blanc Complet <span class="nav-badge">EX</span></div>
+      <div class="nav-item" onclick="navigate('exam-rapide')">Examen Rapide 20min <span class="nav-badge">EX2</span></div>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- HOME PAGE -->
+    <div id="page-home" class="page active">
+      <div class="hero">
+        <h1>Machine Learning S4 <em>Revision</em></h1>
+        <p>Plateforme complete de revision pour les examens finaux — Cours, exercices guides, QCM et simulations d'examen. Tout ce qu'il faut pour obtenir une mention Excellent.</p>
+        <div class="hero-stats">
+          <div class="stat-chip"><div class="num">6</div><div class="lbl">Modules</div></div>
+          <div class="stat-chip"><div class="num">60+</div><div class="lbl">Questions QCM</div></div>
+          <div class="stat-chip"><div class="num">12</div><div class="lbl">Exercices guides</div></div>
+          <div class="stat-chip"><div class="num">2</div><div class="lbl">Examens blancs</div></div>
+          <div class="stat-chip"><div class="num">20</div><div class="lbl">Flashcards</div></div>
+        </div>
+      </div>
+      <div class="section-title">Plan du Module</div>
+      <div class="grid2">
+        <div class="card" style="cursor:pointer" onclick="navigate('theory-regression')">
+          <div class="card-header"><div class="card-title">Regression Lineaire</div><span class="tag tag-blue">T1</span></div>
+          <div class="text-sm text-muted">Modele simple et multiple, MSE, Gradient Descent, sklearn</div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="navigate('theory-logistic')">
+          <div class="card-header"><div class="card-title">Regression Logistique</div><span class="tag tag-purple">T2</span></div>
+          <div class="text-sm text-muted">Classification binaire, sigmoide, log-loss, threshold</div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="navigate('theory-knn')">
+          <div class="card-header"><div class="card-title">KNN</div><span class="tag tag-green">T3</span></div>
+          <div class="text-sm text-muted">K voisins proches, distance euclidienne, choix de k</div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="navigate('theory-tree')">
+          <div class="card-header"><div class="card-title">Arbre de Decision</div><span class="tag tag-amber">T4</span></div>
+          <div class="text-sm text-muted">Entropie, Gini, Gain d'information, construction</div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="navigate('theory-svm')">
+          <div class="card-header"><div class="card-title">SVM</div><span class="tag tag-red">T5</span></div>
+          <div class="text-sm text-muted">Hyperplan separateur, marge, vecteurs support</div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="navigate('theory-eval')">
+          <div class="card-header"><div class="card-title">Evaluation des Modeles</div><span class="tag tag-blue">T6</span></div>
+          <div class="text-sm text-muted">Accuracy, Precision, Recall, F1-Score, matrice confusion</div>
+        </div>
+      </div>
+      <div class="section-title">Demarrer rapidement</div>
+      <div class="grid3">
+        <div class="card" style="text-align:center;cursor:pointer;" onclick="navigate('qcm-fondamentaux')">
+          <div style="font-size:2rem;margin-bottom:8px;">?</div>
+          <div class="card-title">QCM Fondamentaux</div>
+          <div class="text-sm text-muted mt-4">20 questions</div>
+        </div>
+        <div class="card" style="text-align:center;cursor:pointer;" onclick="navigate('exam-blanc')">
+          <div style="font-size:2rem;margin-bottom:8px;color:var(--accent5);">!</div>
+          <div class="card-title">Examen Blanc</div>
+          <div class="text-sm text-muted mt-4">Simulation complete</div>
+        </div>
+        <div class="card" style="text-align:center;cursor:pointer;" onclick="navigate('flashcards')">
+          <div style="font-size:2rem;margin-bottom:8px;">F</div>
+          <div class="card-title">Flashcards</div>
+          <div class="text-sm text-muted mt-4">20 cartes memorisation</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THEORY: REGRESSION LINEAIRE -->
+    <div id="page-theory-regression" class="page">
+      <div class="section-title">Regression Lineaire <span class="tag tag-blue" style="font-size:0.75rem;">Theorie T1</span></div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)">
+          <h3>1. Definition et Types</h3><span class="chevron">v</span>
+        </div>
+        <div class="theory-body">
+          <p class="text-muted text-sm" style="line-height:1.7;">L'apprentissage supervise est une methode ou le modele apprend a partir de donnees etiquetees. La regression predit une valeur <strong>continue</strong>.</p>
+          <div class="formula">Simple : y = w0 + w1*x<br>Multiple : y = w0 + w1*x1 + w2*x2 + ... + wp*xp</div>
+          <ul class="step-list" style="margin-top:12px;">
+            <li><strong>w0</strong> : biais (intercept) — valeur quand x=0</li>
+            <li><strong>w1, w2...</strong> : poids (coefficients) — influence de chaque feature</li>
+            <li><strong>x</strong> : variables d'entree (features)</li>
+            <li><strong>y</strong> : valeur cible a predire (target)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)">
+          <h3>2. Fonction Cout MSE</h3><span class="chevron">v</span>
+        </div>
+        <div class="theory-body">
+          <div class="formula amber">J(θ) = (1/2m) * Σ(ŷᵢ - yᵢ)²<br><br>Avec m = nombre d'observations<br>ŷᵢ = valeur predite, yᵢ = valeur reelle</div>
+          <div class="note-box">Objectif : trouver w0 et w1 qui <strong>minimisent</strong> J(θ). Plus MSE est proche de 0, meilleur est le modele.</div>
+          <p class="text-sm text-muted mt-4">MSE = 0 signifie que le modele predit parfaitement toutes les valeurs du dataset d'entrainement.</p>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)">
+          <h3>3. Gradient Descent</h3><span class="chevron">v</span>
+        </div>
+        <div class="theory-body">
+          <p class="text-sm text-muted" style="line-height:1.7;margin-bottom:10px;">Algorithme iteratif qui met a jour les parametres dans la direction opposee au gradient pour minimiser le cout.</p>
+          <div class="formula">Mise a jour simultanee :<br>θ0 := θ0 - α * (∂J/∂θ0)<br>θ1 := θ1 - α * (∂J/∂θ1)<br><br>Gradients :<br>∂J/∂θ0 = (1/m) * Σ(ŷᵢ - yᵢ)<br>∂J/∂θ1 = (1/m) * Σ(ŷᵢ - yᵢ) * xᵢ</div>
+          <div class="warn-box">α = learning rate. Trop grand → divergence. Trop petit → convergence lente.</div>
+          <div class="algo-steps">
+            <div class="algo-step"><div class="step-dot">1</div><div class="step-content"><h4>Initialisation</h4><p>w0 = 0, w1 = 0</p></div></div>
+            <div class="algo-step"><div class="step-dot">2</div><div class="step-content"><h4>Prediction</h4><p>Calculer ŷᵢ = w0 + w1*xᵢ pour chaque point</p></div></div>
+            <div class="algo-step"><div class="step-dot">3</div><div class="step-content"><h4>Calcul Erreur</h4><p>Calculer MSE et les gradients</p></div></div>
+            <div class="algo-step"><div class="step-dot">4</div><div class="step-content"><h4>Mise a Jour</h4><p>Appliquer la formule de mise a jour simultanement</p></div></div>
+            <div class="algo-step"><div class="step-dot">5</div><div class="step-content"><h4>Iteration</h4><p>Repeter jusqu'a convergence (MSE minimal)</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)">
+          <h3>4. Implementation sklearn</h3><span class="chevron">v</span>
+        </div>
+        <div class="theory-body">
+          <div class="code-block"><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> <span class="fn">LinearRegression</span>
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> <span class="fn">train_test_split</span>
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> <span class="fn">mean_squared_error</span>
+
+<span class="cm"># Preparation</span>
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(X, y, test_size=<span class="num">0.2</span>)
+
+<span class="cm"># Modele</span>
+model = <span class="fn">LinearRegression</span>()
+model.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="cm"># Parametres</span>
+<span class="fn">print</span>(model.intercept_)   <span class="cm"># w0</span>
+<span class="fn">print</span>(model.coef_)        <span class="cm"># w1, w2...</span>
+
+<span class="cm"># Evaluation</span>
+y_pred = model.<span class="fn">predict</span>(X_test)
+mse = <span class="fn">mean_squared_error</span>(y_test, y_pred)
+</div>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-4">
+        <button class="btn btn-primary" onclick="navigate('ex-regression')">Exercices Regression</button>
+        <button class="btn btn-outline" onclick="navigate('qcm-fondamentaux')">Tester avec QCM</button>
+      </div>
+    </div>
+
+    <!-- THEORY: LOGISTIC -->
+    <div id="page-theory-logistic" class="page">
+      <div class="section-title">Regression Logistique <span class="tag tag-purple" style="font-size:0.75rem;">T2</span></div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>1. Classification Binaire</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <p class="text-sm text-muted" style="line-height:1.7;margin-bottom:10px;">La regression logistique predit une <strong>probabilite</strong> entre 0 et 1 pour une classification binaire (y ∈ {0,1}).</p>
+          <div class="formula purple">Modele lineaire : z = w·X + b = w0 + w1x1 + w2x2...<br>Fonction sigmoide : P(y=1) = σ(z) = 1 / (1 + e^(-z))<br>Decision : y=1 si P(y=1) >= 0.5, sinon y=0</div>
+          <div class="note-box">La sigmoide transforme n'importe quelle valeur reelle en probabilite entre 0 et 1.</div>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>2. Fonction Sigmoide — Valeurs cles</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <table class="ex-table">
+            <tr><th>z</th><th>σ(z)</th><th>Interpretation</th></tr>
+            <tr><td>-∞</td><td>≈ 0</td><td>Certainement classe 0</td></tr>
+            <tr><td>-5</td><td>0.0067</td><td>Tres probablement classe 0</td></tr>
+            <tr><td>0</td><td>0.5</td><td>Incertain, frontiere</td></tr>
+            <tr><td>+5</td><td>0.9933</td><td>Tres probablement classe 1</td></tr>
+            <tr><td>+∞</td><td>≈ 1</td><td>Certainement classe 1</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>3. Fonction Cout Log-Loss</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="formula purple">L = -[y·log(p) + (1-y)·log(1-p)]<br><br>Si y=1 : L = -log(p)  → minimiser en maximisant p<br>Si y=0 : L = -log(1-p) → minimiser en minimisant p</div>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>4. Gradient pour la Logistique</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="formula purple">∂L/∂θ = (p - y) · x<br><br>Mise a jour : θ := θ - α · (p - y) · x</div>
+          <div class="note-box">La mise a jour des poids pousse le modele dans la bonne direction. Si p > y (surpredit), on diminue θ. Si p &lt; y (sous-predit), on augmente θ.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THEORY: KNN -->
+    <div id="page-theory-knn" class="page">
+      <div class="section-title">KNN — K-Nearest Neighbors <span class="tag tag-green" style="font-size:0.75rem;">T3</span></div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>1. Principe de l'Algorithme</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <p class="text-sm text-muted" style="line-height:1.7;margin-bottom:10px;">KNN est un algorithme <strong>non parametrique</strong> — il ne construit pas de modele explicite. Pour classer un nouveau point, il cherche les k points d'entrainement les plus proches et vote.</p>
+          <div class="algo-steps">
+            <div class="algo-step"><div class="step-dot">1</div><div class="step-content"><h4>Calculer distances</h4><p>Calculer la distance euclidienne du point P a chaque point du dataset</p></div></div>
+            <div class="algo-step"><div class="step-dot">2</div><div class="step-content"><h4>Trier</h4><p>Trier tous les points par distance croissante</p></div></div>
+            <div class="algo-step"><div class="step-dot">3</div><div class="step-content"><h4>Selectionner k voisins</h4><p>Prendre les k premiers points (les plus proches)</p></div></div>
+            <div class="algo-step"><div class="step-dot">4</div><div class="step-content"><h4>Vote majoritaire</h4><p>La classe qui apparait le plus parmi les k voisins est la prediction</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>2. Distance Euclidienne</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="formula green">1D : d(A, B) = |xA - xB|<br><br>2D : d(A, B) = sqrt((x1A-x1B)² + (x2A-x2B)²)<br><br>nD : d(A, B) = sqrt(Σ(xiA - xiB)²)</div>
+          <div class="warn-box">KNN est sensible a l'echelle — toujours normaliser/standardiser les features avant d'utiliser KNN.</div>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>3. Choix de k</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <table class="ex-table">
+            <tr><th>k petit (ex: k=1)</th><th>k grand (ex: k=N)</th></tr>
+            <tr><td>Overfitting possible</td><td>Underfitting possible</td></tr>
+            <tr><td>Tres sensible au bruit</td><td>Frontieres floues</td></tr>
+            <tr><td>Variance elevee</td><td>Biais eleve</td></tr>
+          </table>
+          <div class="note-box">Regle generale : choisir k impair pour eviter les egalites. Utiliser cross-validation pour trouver le k optimal.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THEORY: DECISION TREE -->
+    <div id="page-theory-tree" class="page">
+      <div class="section-title">Arbre de Decision <span class="tag tag-amber" style="font-size:0.75rem;">T4</span></div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>1. Entropie</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="formula amber">H(S) = -Σ pᵢ · log₂(pᵢ)<br><br>H = 0 → ensemble pur (une seule classe)<br>H = 1 → melange maximal (50% / 50% en binaire)</div>
+          <p class="text-sm text-muted mt-4" style="line-height:1.6;">Exemple : 6 exemples, 3 OUI, 3 NON<br>P(OUI) = 3/6 = 0.5 &nbsp;→&nbsp; log₂(0.5) = -1<br>H = -(0.5×(-1) + 0.5×(-1)) = 1</p>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>2. Gain d'Information</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="formula amber">IG(S, A) = H(S) - Σ (|Sv|/|S|) · H(Sv)<br><br>Sv = sous-ensemble apres division par attribut A</div>
+          <div class="note-box">On choisit l'attribut avec le plus grand gain d'information — il divise le mieux les donnees. C'est le principe de l'algorithme ID3.</div>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>3. Indice de Gini</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="formula amber">Gini(S) = 1 - Σ pᵢ²<br><br>Gini = 0 → ensemble pur<br>Gini = 0.5 → melange maximal (binaire)</div>
+          <p class="text-sm text-muted mt-4">L'indice de Gini est utilise par l'algorithme CART (sklearn DecisionTreeClassifier par defaut).</p>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>4. Avantages et Limites</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="grid2">
+            <div><strong class="text-green">Avantages</strong><br><ul style="margin-top:8px;padding-left:16px;" class="text-sm text-muted"><li>Facile a interpreter</li><li>Pas besoin de normalisation</li><li>Gere variables categoriques</li></ul></div>
+            <div><strong class="text-red">Limites</strong><br><ul style="margin-top:8px;padding-left:16px;" class="text-sm text-muted"><li>Overfitting si trop profond</li><li>Instable au bruit</li><li>Biais vers variables avec plus de valeurs</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THEORY: SVM -->
+    <div id="page-theory-svm" class="page">
+      <div class="section-title">SVM — Support Vector Machine <span class="tag tag-red" style="font-size:0.75rem;">T5</span></div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>1. Hyperplan Separateur</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="formula">Hyperplan : w1·x1 + w2·x2 + b = 0<br><br>Classe +1 : w·x + b >= +1<br>Classe -1 : w·x + b <= -1</div>
+          <p class="text-sm text-muted mt-4" style="line-height:1.6;">L'hyperplan separateur est la frontiere de decision. SVM cherche l'hyperplan qui maximise la marge entre les deux classes.</p>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>2. Marge et Vecteurs Support</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="formula">Marge = 2 / ||w||<br><br>||w|| = sqrt(w1² + w2²)<br><br>Objectif : maximiser la marge = minimiser ||w||</div>
+          <div class="note-box"><strong>Vecteurs support</strong> : points exactement sur les marges (score = ±1). Ce sont eux qui definissent l'hyperplan. Si on les retire, le modele change.</div>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>3. Pourquoi Maximiser la Marge ?</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <p class="text-sm text-muted" style="line-height:1.7;">Une marge large signifie que le modele est robuste aux nouvelles donnees qui peuvent etre legerement differentes des donnees d'entrainement. Cela ameliore la <strong>generalisation</strong> et reduit l'overfitting.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- THEORY: EVALUATION -->
+    <div id="page-theory-eval" class="page">
+      <div class="section-title">Evaluation des Modeles <span class="tag tag-blue" style="font-size:0.75rem;">T6</span></div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>1. Matrice de Confusion</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="confusion-matrix">
+            <div class="cm-cell cm-header"></div>
+            <div class="cm-cell cm-header">Predit 0</div>
+            <div class="cm-cell cm-header">Predit 1</div>
+            <div class="cm-cell cm-header">Reel 0</div>
+            <div class="cm-cell cm-tn">TN</div>
+            <div class="cm-cell cm-fp">FP</div>
+            <div class="cm-cell cm-header">Reel 1</div>
+            <div class="cm-cell cm-fn">FN</div>
+            <div class="cm-cell cm-tp">TP</div>
+          </div>
+          <ul class="step-list mt-4">
+            <li><strong>TP</strong> : Vrai Positif — predit 1, reel 1</li>
+            <li><strong>TN</strong> : Vrai Negatif — predit 0, reel 0</li>
+            <li><strong>FP</strong> : Faux Positif — predit 1, reel 0 (Erreur type I)</li>
+            <li><strong>FN</strong> : Faux Negatif — predit 0, reel 1 (Erreur type II)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>2. Metriques d'Evaluation</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <div class="formula">Accuracy  = (TP + TN) / (TP + TN + FP + FN)<br>Precision = TP / (TP + FP)<br>Recall    = TP / (TP + FN)<br>F1-Score  = 2 * (Precision * Recall) / (Precision + Recall)</div>
+          <table class="ex-table mt-4">
+            <tr><th>Metrique</th><th>Repond a</th><th>Utiliser quand</th></tr>
+            <tr><td>Accuracy</td><td>% de predictions correctes</td><td>Classes equilibrees</td></tr>
+            <tr><td>Precision</td><td>Quand predit +, combien vrais ?</td><td>Faux positifs couteux</td></tr>
+            <tr><td>Recall</td><td>Des vrais +, combien detectes ?</td><td>Faux negatifs couteux (maladie)</td></tr>
+            <tr><td>F1-Score</td><td>Equilibre Precision/Recall</td><td>Classes desequilibrees</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="theory-block">
+        <div class="theory-header" onclick="toggleTheory(this)"><h3>3. Impact du Seuil de Decision</h3><span class="chevron">v</span></div>
+        <div class="theory-body">
+          <p class="text-sm text-muted" style="line-height:1.7;">En abaissant le seuil de 0.5 a 0.3 :<br>
+          → Plus de cas sont predits positifs<br>
+          → <strong>Recall augmente</strong> (on detecte plus de vrais positifs)<br>
+          → <strong>Precision diminue</strong> (plus de faux positifs)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXERCISES: REGRESSION -->
+    <div id="page-ex-regression" class="page">
+      <div class="section-title">Exercices — Regression Lineaire <span class="tag tag-blue" style="font-size:0.75rem;">E1</span></div>
+
+      <div class="exercise-block">
+        <div class="ex-num">Exercice 1 — Gradient Descent</div>
+        <div class="ex-title">Calcul manuel de Gradient Descent</div>
+        <div class="ex-text">Donnees : X = [1,2,3,4,5], Y = [2,4,5,4,5]. Initialisation : θ0 = 0, θ1 = 0, α = 0.01</div>
+        <ol class="step-list">
+          <li>Calculer les predictions ŷᵢ pour chaque point avec θ0=0, θ1=0. <em style="color:var(--accent3)">[Toutes les predictions = 0]</em></li>
+          <li>Calculer J(θ) initial = (1/2×5) × [(0-2)²+(0-4)²+(0-5)²+(0-4)²+(0-5)²] = (1/10)×(4+16+25+16+25) = <strong class="text-accent">8.6</strong></li>
+          <li>Calculer ∂J/∂θ0 = (1/5)×[(0-2)+(0-4)+(0-5)+(0-4)+(0-5)] = (1/5)×(-20) = <strong class="text-accent">-4.0</strong></li>
+          <li>Calculer ∂J/∂θ1 = (1/5)×[(0-2)×1+(0-4)×2+(0-5)×3+(0-4)×4+(0-5)×5] = (1/5)×(-2-8-15-16-25) = <strong class="text-accent">-13.2</strong></li>
+          <li>Mise a jour : θ0 = 0 - 0.01×(-4) = <strong class="text-accent">0.04</strong>, θ1 = 0 - 0.01×(-13.2) = <strong class="text-accent">0.132</strong></li>
+          <li>Recalculer J(θ) apres mise a jour — verifier que le cout a diminue</li>
+          <li>Effectuer une 2eme iteration complete</li>
+        </ol>
+        <button class="btn btn-ghost btn-sm mt-4" onclick="toggleSolution(this)">Afficher solution iteration 2</button>
+        <div class="explanation">
+          <strong>Iteration 2 :</strong><br>
+          ŷ = [0.04+0.132×1, 0.04+0.132×2, ...] = [0.172, 0.304, 0.436, 0.568, 0.700]<br>
+          J(θ) apres iter 1 ≈ 7.03 (inferieur a 8.6 → le cout a bien diminue)<br>
+          La descente de gradient converge vers le minimum.
+        </div>
+      </div>
+
+      <div class="exercise-block">
+        <div class="ex-num">Exercice 2 — Regression Multiple (Workshop 3)</div>
+        <div class="ex-title">Gradient Descent Multivariate</div>
+        <div class="ex-text">Implementer la regression lineaire multiple avec TV, Radio, Newspaper pour predire Sales (advertising.csv).</div>
+        <div class="code-block"><span class="kw">def</span> <span class="fn">fit</span>(X, y):
+    n_samples, n_features = X.shape
+    weights = np.zeros(n_features)
+    bias = <span class="num">0</span>
+    <span class="kw">for</span> _ <span class="kw">in</span> range(n_iters):
+        y_predicted = np.dot(X, weights) + bias
+        dw = (<span class="num">2</span>/n_samples) * np.dot(X.T, (y_predicted - y))
+        db = (<span class="num">2</span>/n_samples) * np.sum(y_predicted - y)
+        weights -= lr * dw
+        bias -= lr * db
+    <span class="kw">return</span> bias, weights</div>
+        <ol class="step-list">
+          <li>Que fait <code style="font-family:var(--mono);color:var(--accent)">np.dot(X.T, (y_predicted - y))</code> ? Pourquoi utilise-t-on la transposee ?</li>
+          <li>Pourquoi doit-on utiliser un learning rate tres petit (0.00001) pour ce probleme ?</li>
+          <li>Tracer la courbe de MSE en fonction des iterations — que doit-on observer ?</li>
+          <li>Comparer les resultats obtenus avec sklearn LinearRegression — lequel a un MSE plus faible ? Pourquoi ?</li>
+        </ol>
+        <button class="btn btn-ghost btn-sm mt-4" onclick="toggleSolution(this)">Voir les reponses</button>
+        <div class="explanation">
+          <strong>Rep 1 :</strong> np.dot(X.T, erreur) calcule le gradient par rapport a chaque poids. X.T permet de faire la multiplication matricielle pour tous les poids simultanement.<br><br>
+          <strong>Rep 2 :</strong> Les valeurs de TV sont grandes (jusqu'a 300), donc les gradients sont grands. Un grand lr causerait une divergence.<br><br>
+          <strong>Rep 3 :</strong> La courbe doit descendre et se stabiliser (plateau). Si elle oscille, lr est trop grand.<br><br>
+          <strong>Rep 4 :</strong> sklearn utilise l'equation normale (solution analytique exacte), donc son MSE sera generalement plus faible que gradient descent avec peu d'iterations.
+        </div>
+      </div>
+
+      <div class="exercise-block">
+        <div class="ex-num">Exercice 3 — Questions Conceptuelles</div>
+        <div class="ex-title">Comprendre le Gradient Descent</div>
+        <ol class="step-list">
+          <li>Que se passe-t-il si α = 10 (trop grand) ? Donner un exemple numerique.<br><em class="text-muted">Les mises a jour seront trop grandes → les parametres oscillent → MSE augmente au lieu de diminuer</em></li>
+          <li>Difference entre batch gradient descent et stochastique ?<br><em class="text-muted">Batch : utilise tous les exemples a chaque iteration (stable, lent). SGD : un exemple aleatoire par iteration (rapide, bruyant).</em></li>
+          <li>Comment savoir que l'algorithme a converge ?<br><em class="text-muted">Quand la variation de J(θ) entre deux iterations est inferieure a un seuil ε (ex: 0.0001).</em></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- EXERCISES: CLASSIFICATION -->
+    <div id="page-ex-classification" class="page">
+      <div class="section-title">Exercices — Classification <span class="tag tag-purple" style="font-size:0.75rem;">E2</span></div>
+
+      <div class="exercise-block">
+        <div class="ex-num">Exercice 1 — Regression Logistique Manuelle</div>
+        <div class="ex-title">Calcul de probabilite sigmoide</div>
+        <div class="ex-text">On donne : z = θᵀx = 1.8, vraie etiquette y = 1, x = [1, 2]ᵀ</div>
+        <ol class="step-list">
+          <li>Calculer p = σ(1.8) = 1/(1+e⁻¹·⁸) = <strong class="text-accent">0.858</strong></li>
+          <li>Calculer la log-loss : L = -[1×log(0.858) + 0×log(0.142)] = -log(0.858) ≈ <strong class="text-accent">0.153</strong></li>
+          <li>Calculer le gradient : ∂L/∂θ = (0.858-1)×[1,2]ᵀ = <strong class="text-accent">[-0.142, -0.284]</strong></li>
+          <li>Sens de mise a jour : les poids augmentent (gradient negatif, on les met a jour avec -α×gradient)</li>
+        </ol>
+      </div>
+
+      <div class="exercise-block">
+        <div class="ex-num">Exercice 2 — KNN</div>
+        <div class="ex-title">Classification par vote majoritaire</div>
+        <table class="ex-table">
+          <tr><th>Point</th><th>x1</th><th>x2</th><th>Classe</th></tr>
+          <tr><td>A</td><td>1</td><td>2</td><td>0</td></tr>
+          <tr><td>B</td><td>2</td><td>3</td><td>0</td></tr>
+          <tr><td>C</td><td>3</td><td>1</td><td>1</td></tr>
+          <tr><td>D</td><td>5</td><td>4</td><td>1</td></tr>
+          <tr><td>E</td><td>4</td><td>2</td><td>1</td></tr>
+          <tr><td><strong>P</strong></td><td>3</td><td>3</td><td><em>?</em></td></tr>
+        </table>
+        <ol class="step-list">
+          <li>d(P,A) = sqrt((3-1)²+(3-2)²) = sqrt(4+1) = <strong class="text-accent">sqrt(5) ≈ 2.24</strong></li>
+          <li>d(P,B) = sqrt((3-2)²+(3-3)²) = sqrt(1+0) = <strong class="text-accent">1.0</strong></li>
+          <li>d(P,C) = sqrt((3-3)²+(3-1)²) = sqrt(0+4) = <strong class="text-accent">2.0</strong></li>
+          <li>d(P,D) = sqrt((3-5)²+(3-4)²) = sqrt(4+1) = <strong class="text-accent">sqrt(5) ≈ 2.24</strong></li>
+          <li>d(P,E) = sqrt((3-4)²+(3-2)²) = sqrt(1+1) = <strong class="text-accent">sqrt(2) ≈ 1.41</strong></li>
+          <li>k=3 voisins les plus proches : B(dist=1, cl=0), E(dist=1.41, cl=1), C(dist=2, cl=1) → Vote : 2×Classe1, 1×Classe0 → Prediction = <strong class="text-accent">Classe 1</strong></li>
+        </ol>
+        <button class="btn btn-ghost btn-sm mt-4" onclick="toggleSolution(this)">k=1 et k=5 ?</button>
+        <div class="explanation"><strong>k=1 :</strong> Seul voisin B (classe 0) → prediction = 0 (overfitting possible)<br><strong>k=5 :</strong> Tous les 5 points → vote: 2×cl0, 3×cl1 → prediction = 1</div>
+      </div>
+
+      <div class="exercise-block">
+        <div class="ex-num">Exercice 3 — Arbre de Decision</div>
+        <div class="ex-title">Calcul d'entropie et gain d'information</div>
+        <table class="ex-table">
+          <tr><th>Etudiant</th><th>Revise</th><th>Assiste</th><th>Reussite</th></tr>
+          <tr><td>1</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+          <tr><td>2</td><td>Oui</td><td>Non</td><td>Oui</td></tr>
+          <tr><td>3</td><td>Non</td><td>Oui</td><td>Non</td></tr>
+          <tr><td>4</td><td>Non</td><td>Non</td><td>Non</td></tr>
+          <tr><td>5</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+          <tr><td>6</td><td>Non</td><td>Oui</td><td>Non</td></tr>
+        </table>
+        <ol class="step-list">
+          <li>H(S) initial : P(Oui)=3/6=0.5, P(Non)=0.5 → H = -(0.5×log2(0.5)+0.5×log2(0.5)) = <strong class="text-accent">1.0</strong></li>
+          <li>Gain(S, Revise) : Revise=Oui → 3 Oui, 0 Non → H=0. Revise=Non → 0 Oui, 3 Non → H=0. Gain = 1 - (3/6×0 + 3/6×0) = <strong class="text-accent">1.0</strong></li>
+          <li>Gain(S, Assiste) : Assiste=Oui → {Oui,Non,Oui,Non} → H=1. Assiste=Non → {Oui,Non} → H=1. Gain = 1 - (4/6×1 + 2/6×1) = <strong class="text-accent">0.0</strong></li>
+          <li>Racine = <strong class="text-accent">Revise</strong> (plus grand gain = 1)</li>
+          <li>Arbre : si Revise=Oui → Reussite=Oui | si Revise=Non → Reussite=Non</li>
+        </ol>
+      </div>
+
+      <div class="exercise-block">
+        <div class="ex-num">Exercice 4 — SVM</div>
+        <div class="ex-title">Verification des contraintes SVM</div>
+        <div class="ex-text">w1=-1, w2=1, b=0. Points : A(1,1,+1), B(2,2,+1), C(3,1,-1), D(3,3,-1)</div>
+        <ol class="step-list">
+          <li>Score A = -1×1 + 1×1 + 0 = <strong class="text-accent">0</strong> → Contrainte +1 : score ≥ 1 ? Non respecte !</li>
+          <li>Score B = -1×2 + 1×2 + 0 = <strong class="text-accent">0</strong> → Meme probleme</li>
+          <li>Score C = -1×3 + 1×1 + 0 = <strong class="text-accent">-2</strong> → Contrainte -1 : score ≤ -1 ? Oui</li>
+          <li>Score D = -1×3 + 1×3 + 0 = <strong class="text-accent">0</strong> → Non respecte</li>
+          <li>Vecteurs support : points avec score = ±1 → C est vecteur support (score=-2 pas exactement -1 mais le plus proche)</li>
+          <li>||w|| = sqrt((-1)²+1²) = sqrt(2) ≈ 1.414. Marge = 2/sqrt(2) = <strong class="text-accent">sqrt(2) ≈ 1.41</strong></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- EXERCISES: GRADIENT DESCENT -->
+    <div id="page-ex-gradient" class="page">
+      <div class="section-title">Gradient Descent — Approfondissement <span class="tag tag-green" style="font-size:0.75rem;">E3</span></div>
+      <div class="exercise-block">
+        <div class="ex-num">Workshop 2 — Partie 1</div>
+        <div class="ex-title">Analyse du Code Gradient Descent</div>
+        <div class="code-block"><span class="kw">def</span> <span class="fn">learning2</span>(X, y_real):
+    w0 = <span class="num">0</span>
+    w1 = <span class="num">0</span>
+    nb_iterations = <span class="num">50</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(nb_iterations):
+        y_predicted = w1 * X + w0
+        error = <span class="fn">mse</span>(y_predicted, y_real)
+        <span class="fn">print</span>(w0, w1, y_predicted, error)
+        w1 = w1 + <span class="num">0.4</span>  <span class="cm"># probleme ici !</span></div>
+        <ol class="step-list">
+          <li>Probleme 1 : w1 augmente toujours de +0.4 sans considerer la direction. Le modele peut depasser le minimum.<br><em class="text-accent">Solution : Gradient Descent — utiliser la derivee pour connaitre la direction.</em></li>
+          <li>Probleme 2 : Le pas 0.4 est fixe et peut etre trop grand ou trop petit.<br><em class="text-accent">Solution : Learning rate adaptif — multiplier le gradient par α petit.</em></li>
+          <li>Augmenter les iterations ne resout pas le probleme : si la mise a jour est mauvaise, plus d'iterations = plus d'erreur !</li>
+          <li>Solution correcte : w1 = w1 - lr × (∂MSE/∂w1) en utilisant le gradient</li>
+        </ol>
+      </div>
+      <div class="exercise-block">
+        <div class="ex-num">Workshop 2 — Partie 2</div>
+        <div class="ex-title">Implementation Correcte</div>
+        <div class="code-block"><span class="kw">def</span> <span class="fn">learning_correct</span>(X, y_real):
+    w0, w1 = <span class="num">0</span>, <span class="num">0</span>
+    lr = <span class="num">0.001</span>
+    n = len(X)
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">1000</span>):
+        y_pred = w1 * X + w0
+        dw0 = (<span class="num">2</span>/n) * np.sum(y_pred - y_real)
+        dw1 = (<span class="num">2</span>/n) * np.sum((y_pred - y_real) * X)
+        w0 = w0 - lr * dw0  <span class="cm"># simultanee</span>
+        w1 = w1 - lr * dw1  <span class="cm"># simultanee</span>
+    <span class="kw">return</span> w0, w1</div>
+        <div class="note-box">La mise a jour doit etre <strong>simultanee</strong> — ne pas utiliser le w0 mis a jour pour calculer dw1 dans la meme iteration.</div>
+        <ol class="step-list">
+          <li>Si n_iterations trop petit : le modele n'a pas converge, MSE reste eleve</li>
+          <li>Si n_iterations tres grand : le modele a converge mais gaspille du calcul. Solution : early stopping.</li>
+          <li>Valeurs attendues pour Dataset 1 (y=x) : w0≈0, w1≈1</li>
+          <li>Valeurs attendues pour Dataset 2 (y=1+3x) : w0≈1, w1≈3</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- EXERCISES: EVALUATION -->
+    <div id="page-ex-evaluation" class="page">
+      <div class="section-title">Exercices — Evaluation <span class="tag tag-amber" style="font-size:0.75rem;">E4</span></div>
+      <div class="exercise-block">
+        <div class="ex-num">Exercice 6 — Matrice de Confusion</div>
+        <div class="ex-title">Calcul complet des metriques</div>
+        <div class="confusion-matrix">
+          <div class="cm-cell cm-header"></div>
+          <div class="cm-cell cm-header">Predit 0</div>
+          <div class="cm-cell cm-header">Predit 1</div>
+          <div class="cm-cell cm-header">Reel 0</div>
+          <div class="cm-cell cm-tn">TN = 50</div>
+          <div class="cm-cell cm-fp">FP = 10</div>
+          <div class="cm-cell cm-header">Reel 1</div>
+          <div class="cm-cell cm-fn">FN = 5</div>
+          <div class="cm-cell cm-tp">TP = 35</div>
+        </div>
+        <ol class="step-list">
+          <li>TP=35, TN=50, FP=10, FN=5. Total = 100 exemples.</li>
+          <li>Accuracy = (35+50)/100 = <strong class="text-accent">85%</strong></li>
+          <li>Precision = 35/(35+10) = 35/45 = <strong class="text-accent">77.8%</strong></li>
+          <li>Recall = 35/(35+5) = 35/40 = <strong class="text-accent">87.5%</strong></li>
+          <li>F1 = 2 × (0.778×0.875)/(0.778+0.875) = <strong class="text-accent">82.4%</strong></li>
+          <li>Maladie grave : <strong class="text-accent">Recall</strong> est la plus importante — on ne veut pas rater des cas malades (FN couteux)</li>
+          <li>Seuil 0.3 : plus de cas predits 1 → Recall augmente, Precision diminue</li>
+        </ol>
+      </div>
+      <div class="exercise-block">
+        <div class="ex-num">Lab 2 — Concepts sklearn</div>
+        <div class="ex-title">Questions sur l'implementation</div>
+        <ol class="step-list">
+          <li><strong>Pourquoi separer train/test ?</strong><br><em class="text-muted">Evaluer la generalisation du modele sur des donnees qu'il n'a jamais vues. Sinon on mesure la memorisation, pas l'apprentissage.</em></li>
+          <li><strong>Intercept et coef_ ?</strong><br><em class="text-muted">intercept_ = b (biais), coef_ = [w1, w2...] (poids pour chaque feature)</em></li>
+          <li><strong>predict vs predict_proba ?</strong><br><em class="text-muted">predict → classe predite (0 ou 1). predict_proba → probabilites [P(y=0), P(y=1)]</em></li>
+          <li><strong>Sigmoid pour X=['Glucose','BMI','Age'] ?</strong><br><em class="text-muted">z = w0 + w1*Glucose + w2*BMI + w3*Age → P(y=1) = 1/(1+e^(-z))</em></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- QCM: FONDAMENTAUX -->
+    <div id="page-qcm-fondamentaux" class="page">
+      <div class="section-title">QCM — Fondamentaux ML <span class="tag tag-blue" style="font-size:0.75rem;">Q1</span></div>
+      <div id="qcm-fond-container"></div>
+    </div>
+
+    <!-- QCM: MODELES -->
+    <div id="page-qcm-modeles" class="page">
+      <div class="section-title">QCM — Modeles Machine Learning <span class="tag tag-purple" style="font-size:0.75rem;">Q2</span></div>
+      <div id="qcm-modeles-container"></div>
+    </div>
+
+    <!-- QCM: MATHS -->
+    <div id="page-qcm-maths" class="page">
+      <div class="section-title">QCM — Calculs et Formules <span class="tag tag-green" style="font-size:0.75rem;">Q3</span></div>
+      <div id="qcm-maths-container"></div>
+    </div>
+
+    <!-- FLASHCARDS -->
+    <div id="page-flashcards" class="page">
+      <div class="section-title">Flashcards — Memorisation Rapide <span class="tag tag-amber" style="font-size:0.75rem;">FC</span></div>
+      <div class="fc-nav">
+        <button class="btn btn-ghost" onclick="fcPrev()">Precedent</button>
+        <span class="fc-counter" id="fcCounter">1 / 20</span>
+        <button class="btn btn-ghost" onclick="fcNext()">Suivant</button>
+        <button class="btn btn-outline btn-sm" onclick="fcShuffle()">Melanger</button>
+      </div>
+      <div class="flashcard-wrap" onclick="flipCard()">
+        <div class="flashcard" id="flashcard">
+          <div class="card-face">
+            <h3 id="fcFront">Chargement...</h3>
+            <div class="card-hint">Cliquer pour voir la reponse</div>
+          </div>
+          <div class="card-face card-back">
+            <h3 id="fcBackTitle">Reponse</h3>
+            <p class="card-formula" id="fcBack">...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXAM BLANC -->
+    <div id="page-exam-blanc" class="page">
+      <div id="exam-blanc-start">
+        <div class="hero">
+          <h1>Simulation Examen <em>Blanc Complet</em></h1>
+          <p>Examen complet couvrant tous les modules : Regression, Classification, KNN, Arbres de Decision, SVM et Evaluation. Duree : 90 minutes. Conditions reelles d'examen.</p>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header"><div class="card-title">Instructions</div><span class="tag tag-red">Important</span></div>
+          <ul class="step-list">
+            <li>Duree : 90 minutes — le minuteur demarre automatiquement</li>
+            <li>Repondre a toutes les questions dans l'ordre</li>
+            <li>Partie A : QCM (20 pts) — Partie B : Exercices calculs (60 pts) — Partie C : Questions ouvertes (20 pts)</li>
+            <li>Les documents ne sont pas autorises en conditions reelles</li>
+          </ul>
+        </div>
+        <button class="btn btn-danger" onclick="startExamBlanc()">Demarrer l'examen (90 min)</button>
+        <button class="btn btn-ghost" onclick="navigate('home')" style="margin-left:10px;">Annuler</button>
+      </div>
+      <div id="exam-blanc-body" class="hidden">
+        <div class="exam-header">
+          <div>
+            <h2>Examen Final — Machine Learning S4</h2>
+            <div class="text-sm text-muted">EST El Kelaa | DUT ID — Semestre 4 | Note /100</div>
+          </div>
+          <div class="exam-timer ok" id="examTimer">90:00</div>
+        </div>
+        <div class="tabs">
+          <div class="tab active" onclick="switchExamTab('A',this)">Partie A — QCM (20pts)</div>
+          <div class="tab" onclick="switchExamTab('B',this)">Partie B — Exercices (60pts)</div>
+          <div class="tab" onclick="switchExamTab('C',this)">Partie C — Questions (20pts)</div>
+        </div>
+        <!-- PARTIE A -->
+        <div id="examTabA" class="tab-content active">
+          <div class="exam-section">
+            <div class="exam-section-title">Partie A — Questions a Choix Multiples (20 points — 2pts/question)</div>
+            <div id="exam-qcm-container"></div>
+          </div>
+        </div>
+        <!-- PARTIE B -->
+        <div id="examTabB" class="tab-content">
+          <div class="exam-section">
+            <div class="exam-section-title">B1 — Regression Lineaire (15 pts)</div>
+            <div class="question-card">
+              <div class="q-text"><strong>Exercice B1 :</strong> On considere le dataset : X=[1,2,3], Y=[2,4,5]. Avec θ0=0, θ1=0, α=0.01.<br><br>1. Calculer les predictions initiales ŷᵢ (2pts)<br>2. Calculer J(θ) initial (3pts)<br>3. Calculer ∂J/∂θ0 et ∂J/∂θ1 (4pts)<br>4. Donner θ0 et θ1 apres la 1ere iteration (4pts)<br>5. Pourquoi la MSE doit diminuer apres chaque iteration ? (2pts)</div>
+              <textarea class="answer-area" placeholder="Votre reponse ici..."></textarea>
+            </div>
+          </div>
+          <div class="exam-section">
+            <div class="exam-section-title">B2 — Regression Logistique (15 pts)</div>
+            <div class="question-card">
+              <div class="q-text"><strong>Exercice B2 :</strong> z = 0.8x - 1, P(y=1) = σ(z)<br><br>1. Calculer z pour x=2 (2pts)<br>2. Calculer P(y=1) (3pts)<br>3. Donner la classe predite si seuil=0.5 (2pts)<br>4. Calculer la log-loss si y=1 (4pts)<br>5. Dans quel sens vont les poids apres cette iteration ? (4pts)</div>
+              <textarea class="answer-area" placeholder="Votre reponse ici..."></textarea>
+            </div>
+          </div>
+          <div class="exam-section">
+            <div class="exam-section-title">B3 — KNN (10 pts)</div>
+            <div class="question-card">
+              <div class="q-text"><strong>Exercice B3 :</strong> Dataset : A(2,0,cl0), B(4,0,cl0), C(6,1,cl1), D(7,1,cl1). Nouveau point P=5, k=3.<br><br>1. Calculer d(P,A), d(P,B), d(P,C), d(P,D) (4pts)<br>2. Identifier les 3 plus proches voisins (2pts)<br>3. Donner la classe predite (2pts)<br>4. Impact si k=1 ? (2pts)</div>
+              <textarea class="answer-area" placeholder="Votre reponse ici..."></textarea>
+            </div>
+          </div>
+          <div class="exam-section">
+            <div class="exam-section-title">B4 — Arbre de Decision (10 pts)</div>
+            <div class="question-card">
+              <div class="q-text"><strong>Exercice B4 :</strong> Dataset : (grand,lourd,oui), (petit,lourd,oui), (grand,leger,non), (petit,leger,non)<br><br>1. Calculer H(S) total (3pts)<br>2. Gain d'information pour Taille (3pts)<br>3. Gain d'information pour Poids (3pts)<br>4. Quel attribut choisir comme racine ? (1pt)</div>
+              <textarea class="answer-area" placeholder="Votre reponse ici..."></textarea>
+            </div>
+          </div>
+          <div class="exam-section">
+            <div class="exam-section-title">B5 — Evaluation (10 pts)</div>
+            <div class="question-card">
+              <div class="q-text"><strong>Exercice B5 :</strong> Matrice de confusion : TP=35, TN=50, FP=10, FN=5. Total=100.<br><br>1. Calculer Accuracy (2pts)<br>2. Calculer Precision (2pts)<br>3. Calculer Recall (2pts)<br>4. Calculer F1-Score (2pts)<br>5. Si la classe 1 represente une maladie rare, quelle metrique privilegier ? (2pts)</div>
+              <textarea class="answer-area" placeholder="Votre reponse ici..."></textarea>
+            </div>
+          </div>
+        </div>
+        <!-- PARTIE C -->
+        <div id="examTabC" class="tab-content">
+          <div class="exam-section">
+            <div class="exam-section-title">Partie C — Questions Ouvertes (20 points)</div>
+            <div class="question-card">
+              <div class="q-text"><strong>C1 (5pts) :</strong> Expliquer la difference entre overfitting et underfitting. Donner un exemple pour chaque et indiquer comment les detecter et les corriger.</div>
+              <textarea class="answer-area" placeholder="Votre reponse ici..."></textarea>
+            </div>
+            <div class="question-card" style="margin-top:12px;">
+              <div class="q-text"><strong>C2 (5pts) :</strong> Pourquoi doit-on separer les donnees en train set et test set ? Qu'est-ce que la validation croisee (cross-validation) et quel est son avantage ?</div>
+              <textarea class="answer-area" placeholder="Votre reponse ici..."></textarea>
+            </div>
+            <div class="question-card" style="margin-top:12px;">
+              <div class="q-text"><strong>C3 (5pts) :</strong> Comparer KNN, Arbre de Decision et SVM en termes de : complexite d'entrainement, interpretabilite, gestion de donnees non lineaires. Quand utiliser chacun ?</div>
+              <textarea class="answer-area" placeholder="Votre reponse ici..."></textarea>
+            </div>
+            <div class="question-card" style="margin-top:12px;">
+              <div class="q-text"><strong>C4 (5pts) :</strong> Qu'est-ce que le learning rate dans le gradient descent ? Quel impact a-t-il si trop grand ? Si trop petit ? Comment choisir une bonne valeur ?</div>
+              <textarea class="answer-area" placeholder="Votre reponse ici..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-success" onclick="submitExam()">Soumettre l'Examen</button>
+          <button class="btn btn-ghost" onclick="showExamCorrection()">Voir Correction</button>
+        </div>
+      </div>
+      <div id="exam-blanc-result" class="hidden">
+        <div class="quiz-result">
+          <div style="font-size:1.2rem;color:var(--text2);margin-bottom:8px;">Examen termine</div>
+          <div class="result-score" id="examFinalScore">...</div>
+          <div class="result-msg" id="examFinalMsg"></div>
+          <hr class="divider">
+          <div class="section-title" style="font-size:1rem;">Correction Partie A</div>
+          <div id="examCorrectionA"></div>
+          <div class="section-title" style="font-size:1rem;margin-top:20px;">Correction Parties B et C</div>
+          <div id="examCorrectionBC"></div>
+          <div class="flex gap-3 mt-4">
+            <button class="btn btn-primary" onclick="navigate('home')">Retour Accueil</button>
+            <button class="btn btn-outline" onclick="resetExam()">Recommencer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXAM RAPIDE -->
+    <div id="page-exam-rapide" class="page">
+      <div class="section-title">Examen Rapide — 20 minutes <span class="tag tag-red" style="font-size:0.75rem;">EX2</span></div>
+      <div id="exam-rapide-start">
+        <div class="card mb-4">
+          <div class="card-header"><div class="card-title">Format Examen Rapide</div><span class="tag tag-amber">20 min</span></div>
+          <p class="text-sm text-muted">10 QCM (20pts) + 2 exercices courts (30pts). Parfait pour s'entrainer avant l'examen final.</p>
+        </div>
+        <button class="btn btn-danger" onclick="startExamRapide()">Demarrer (20 min)</button>
+      </div>
+      <div id="exam-rapide-body" class="hidden">
+        <div class="exam-header">
+          <h2>Examen Rapide — 20 min</h2>
+          <div class="exam-timer ok" id="examRapideTimer">20:00</div>
+        </div>
+        <div id="exam-rapide-content"></div>
+        <button class="btn btn-success mt-4" onclick="submitExamRapide()">Soumettre</button>
+      </div>
+      <div id="exam-rapide-result" class="hidden">
+        <div class="quiz-result">
+          <div class="result-score" id="rapideScore">...</div>
+          <div class="result-msg" id="rapideMsg"></div>
+          <div id="rapideCorrection" style="text-align:left;margin-top:20px;"></div>
+          <button class="btn btn-outline mt-4" onclick="resetRapide()">Recommencer</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="timerModal">
+  <div class="modal">
+    <h2>Minuteur de Session</h2>
+    <p>Definir la duree de votre session de revision. Le minuteur affichera une alerte quand il reste 5 minutes.</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;">
+      <input type="number" id="timerInput" value="60" min="1" max="300"
+        style="width:80px;padding:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);">
+      <span class="text-muted text-sm">minutes</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeTimerModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="setCustomTimer()">Demarrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ TIMER ============
+let timerInterval = null;
+let timerSeconds = 0;
+let timerMax = 0;
+let timerRunning = false;
+let examTimerInterval = null;
+
+function toggleTimer() {
+  if (!timerRunning && timerMax === 0) {
+    document.getElementById('timerModal').classList.add('show');
+    return;
+  }
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('globalTimer').classList.remove('running');
+    document.getElementById('timerDot').className = 'timer-dot';
+  } else {
+    startTimerCount();
+  }
+}
+function setCustomTimer() {
+  const mins = parseInt(document.getElementById('timerInput').value) || 60;
+  timerMax = mins * 60;
+  timerSeconds = timerMax;
+  closeTimerModal();
+  startTimerCount();
+}
+function startTimerCount() {
+  timerRunning = true;
+  document.getElementById('globalTimer').classList.add('running');
+  document.getElementById('timerDot').className = 'timer-dot run';
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    if (timerSeconds < 0) timerSeconds = 0;
+    updateTimerDisplay();
+    if (timerSeconds === 300) {
+      document.getElementById('globalTimer').classList.add('warning');
+      document.getElementById('timerDot').className = 'timer-dot warn';
+      showNotif('5 minutes restantes !', 'error');
+    }
+    if (timerSeconds === 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      showNotif('Temps ecoule !', 'error');
+    }
+  }, 1000);
+}
+function updateTimerDisplay() {
+  const h = Math.floor(timerSeconds / 3600);
+  const m = Math.floor((timerSeconds % 3600) / 60);
+  const s = timerSeconds % 60;
+  document.getElementById('timerDisplay').textContent =
+    String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = timerMax;
+  timerMax = 0;
+  document.getElementById('globalTimer').classList.remove('running','warning');
+  document.getElementById('timerDot').className = 'timer-dot';
+  document.getElementById('timerDisplay').textContent = '00:00:00';
+}
+function closeTimerModal() { document.getElementById('timerModal').classList.remove('show'); }
+
+// ============ THEME ============
+function toggleTheme() {
+  const t = document.getElementById('themeToggle').checked;
+  document.documentElement.setAttribute('data-theme', t ? 'light' : 'dark');
+  document.getElementById('themeLabel').textContent = t ? 'Light' : 'Dark';
+}
+
+// ============ NAVIGATION ============
+function navigate(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) n.classList.add('active');
+  });
+  window.scrollTo(0,0);
+  // Init QCM on first visit
+  if (id === 'qcm-fondamentaux' && !qcmInited.fond) { initQCM('fond'); qcmInited.fond=true; }
+  if (id === 'qcm-modeles' && !qcmInited.modeles) { initQCM('modeles'); qcmInited.modeles=true; }
+  if (id === 'qcm-maths' && !qcmInited.maths) { initQCM('maths'); qcmInited.maths=true; }
+  if (id === 'flashcards' && !fcInited) { initFlashcards(); fcInited=true; }
+}
+
+// ============ THEORY TOGGLE ============
+function toggleTheory(header) {
+  const block = header.closest('.theory-block');
+  block.classList.toggle('open');
+}
+
+// ============ SOLUTION TOGGLE ============
+function toggleSolution(btn) {
+  const expl = btn.nextElementSibling;
+  expl.classList.toggle('show');
+  btn.textContent = expl.classList.contains('show') ? 'Masquer la solution' : btn.textContent.replace('Masquer','Voir').replace('Masquer','Afficher');
+}
+
+// ============ NOTIFICATION ============
+function showNotif(msg, type) {
+  const n = document.getElementById('notif');
+  n.textContent = msg;
+  n.className = 'notif show ' + type;
+  setTimeout(() => n.classList.remove('show'), 3500);
+}
+
+// ============ QCM DATA ============
+const qcmData = {
+  fond: [
+    {q:"Qu'est-ce que l'apprentissage supervise ?",a:1,opts:["Le modele apprend sans donnees etiquetees","Le modele apprend a partir de donnees etiquetees (X,y)","Le modele trouve des clusters dans les donnees","Le modele genere de nouvelles donnees"],exp:"L'apprentissage supervise utilise des paires (X,y) pour apprendre une fonction f : X → y."},
+    {q:"Quelle est la difference entre regression et classification ?",a:0,opts:["Regression predit une valeur continue, classification predit une classe","Regression predit une classe, classification predit une valeur","Les deux font la meme chose","Regression est non supervise, classification est supervise"],exp:"Regression : sortie continue (prix, temperature). Classification : sortie discrete (spam/non-spam, 0/1)."},
+    {q:"Qu'est-ce que le MSE (Mean Squared Error) ?",a:2,opts:["Moyenne des erreurs","Somme des erreurs absolues","Moyenne des carres des erreurs (ŷᵢ - yᵢ)²","Racine de la somme des erreurs"],exp:"MSE = (1/m)×Σ(ŷᵢ - yᵢ)². Le carre penalise les grandes erreurs."},
+    {q:"Que se passe-t-il si le learning rate est trop grand ?",a:3,opts:["Le modele converge plus vite","Le modele ne converge pas du tout","Le modele fait de l'overfitting","Les parametres divergent — le MSE augmente"],exp:"Un learning rate trop grand cause des mises a jour trop importantes et le modele diverge."},
+    {q:"Qu'est-ce qu'un feature (variable d'entree) ?",a:1,opts:["La valeur cible a predire","Une variable d'entree utilisee pour faire des predictions","Le modele entraine","Le taux d'erreur"],exp:"Features = variables d'entree X. Target = variable de sortie y."},
+    {q:"Que represente w0 dans y = w0 + w1*x ?",a:0,opts:["Le biais (intercept) — valeur quand x=0","La pente de la droite","Le nombre de features","Le taux d'apprentissage"],exp:"w0 est le biais ou intercept. C'est la valeur de y quand x=0."},
+    {q:"Pourquoi separer les donnees en train et test ?",a:2,opts:["Pour avoir plus de donnees","Pour accelerer l'entrainement","Pour evaluer la generalisation sur des donnees inconnues","Pour reduire la complexite du modele"],exp:"Le test set simule des donnees reelles inconnues et mesure la capacite de generalisation."},
+    {q:"Qu'est-ce que l'overfitting ?",a:1,opts:["Le modele est trop simple","Le modele memorise les donnees d'entrainement mais generalise mal","Le modele converge trop vite","Le learning rate est trop petit"],exp:"Overfitting : le modele performe bien sur train mais mal sur test. Il a memorise le bruit."},
+    {q:"Quelle est la formule de l'accuracy ?",a:0,opts:["(TP+TN)/(TP+TN+FP+FN)","TP/(TP+FP)","TP/(TP+FN)","2×P×R/(P+R)"],exp:"Accuracy = proportion de predictions correctes sur le total."},
+    {q:"Qu'est-ce qu'un dataset dans le contexte ML ?",a:3,opts:["Un algorithme d'apprentissage","Une fonction de cout","Une metrique d'evaluation","Un ensemble de donnees avec features et targets"],exp:"Dataset = collection de paires (Xᵢ, yᵢ) utilisees pour entrainer et evaluer le modele."},
+    {q:"Dans sklearn, que fait train_test_split(X, y, test_size=0.2) ?",a:2,opts:["Divise les features en 2 groupes","Normalise les donnees","Met 80% en train, 20% en test","Met 20% en train, 80% en test"],exp:"test_size=0.2 signifie 20% pour le test, 80% pour l'entrainement."},
+    {q:"Qu'est-ce que la convergence dans le gradient descent ?",a:1,opts:["Le modele s'arrete apres 1000 iterations","Le MSE ne change plus significativement entre iterations","Le learning rate atteint 0","Les weights deviennent tous egaux a 0"],exp:"Convergence = le changement de J(θ) entre deux iterations est inferieur a un seuil ε."},
+    {q:"Quelle valeur retourne sigmoid(0) ?",a:2,opts:["0","1","0.5","Indefini"],exp:"σ(0) = 1/(1+e⁰) = 1/2 = 0.5. Le point d'inflexion de la sigmoide."},
+    {q:"Qu'est-ce que la normalisation des features ?",a:0,opts:["Mettre les features sur la meme echelle","Supprimer les features inutiles","Ajouter des features","Reduire le nombre d'exemples"],exp:"Normalisation essentielle pour KNN et gradient descent pour eviter que certaines features dominent."},
+    {q:"Gradient descent batch vs stochastique ?",a:1,opts:["Batch utilise 1 exemple, SGD utilise tout le dataset","Batch utilise tout le dataset par iteration, SGD utilise 1 exemple aleatoire","Les deux sont identiques","Batch est plus rapide par iteration"],exp:"Batch GD : stable mais lent. SGD : rapide par iteration mais bruyant. Mini-batch : compromis."},
+    {q:"Qu'est-ce que le biais-variance trade-off ?",a:3,opts:["Biais = taille du modele, variance = vitesse","Les deux doivent etre maximises","Biais eleve → underfitting, variance elevee → overfitting","Biais eleve → overfitting, variance elevee → underfitting"],exp:"Biais (erreur systematique) ↔ Variance (sensibilite aux donnees d'entrainement). Compromis fondamental."},
+    {q:"Que mesure la Precision dans une classification ?",a:1,opts:["Pourcentage de predictions correctes au total","Parmi les cas predits positifs, combien sont vraiment positifs","Parmi les vrais positifs, combien sont detectes","Combinaison de precision et recall"],exp:"Precision = TP/(TP+FP). Repondre a : quand je predit +, ai-je raison ?"},
+    {q:"Que mesure le Recall dans une classification ?",a:2,opts:["Parmi les cas predits positifs, combien sont vrais","Proportion de toutes les predictions correctes","Parmi les vrais positifs, combien sont detectes","Vitesse d'apprentissage du modele"],exp:"Recall = TP/(TP+FN). Repondre a : parmi tous les vrais +, combien ai-je trouves ?"},
+    {q:"Quel algorithme ML n'a pas de phase d'entrainement ?",a:0,opts:["KNN","Regression Logistique","Arbre de Decision","SVM"],exp:"KNN est lazy learning — il stocke les donnees et calcule les distances au moment de la prediction."},
+    {q:"Dans un arbre de decision, qu'indique H=0 ?",a:3,opts:["Erreur maximale","Ensemble totalement melange","Gain d'information nul","Ensemble pur — une seule classe"],exp:"H=0 (entropie nulle) signifie que tous les exemples du noeud appartiennent a la meme classe."},
+  ],
+  modeles: [
+    {q:"La regression logistique predit :",a:1,opts:["Une valeur continue","Une probabilite entre 0 et 1","Une distance euclidienne","Un gain d'information"],exp:"La sigmoide transforme la sortie lineaire en probabilite ∈ [0,1]."},
+    {q:"Quelle est la fonction de perte pour la regression logistique ?",a:2,opts:["MSE (Mean Squared Error)","MAE (Mean Absolute Error)","Log-Loss (Binary Cross-Entropy)","Hinge Loss"],exp:"Log-Loss = -[y·log(p) + (1-y)·log(1-p)]. Penalise les predictions confiantes incorrectes."},
+    {q:"KNN avec k=1 presente quel probleme ?",a:0,opts:["Tres sensible au bruit (overfitting)","Underfitting severe","Impossible a calculer","Trop lent"],exp:"k=1 : on classe selon le seul voisin le plus proche. Tres sensible aux outliers."},
+    {q:"L'algorithme ID3 utilise quel critere de division ?",a:3,opts:["Indice de Gini","Variance","MSE","Gain d'Information (entropie)"],exp:"ID3 maximise le Gain = H(S) - Σ(|Sv|/|S|)×H(Sv)."},
+    {q:"sklearn DecisionTreeClassifier utilise par defaut quel critere ?",a:1,opts:["Entropie","Gini","Gain d'information","Variance"],exp:"criterion='gini' par defaut dans sklearn. Changer avec criterion='entropy' pour ID3."},
+    {q:"Les vecteurs support dans SVM sont :",a:2,opts:["Tous les points du dataset","Les points les plus eloignes de l'hyperplan","Les points les plus proches de l'hyperplan (sur les marges)","Les points mal classes"],exp:"Les vecteurs support sont exactement sur les marges (score=±1). Ils definissent l'hyperplan."},
+    {q:"SVM maximise :",a:0,opts:["La marge 2/||w||","La precision","Le recall","Le nombre de vecteurs support"],exp:"Maximiser la marge = minimiser ||w||. Une grande marge → meilleure generalisation."},
+    {q:"La regression logistique peut-elle etre utilisee pour regression ?",a:1,opts:["Oui, toujours","Non, malgre le nom c'est un classificateur","Oui mais seulement avec une feature","Oui avec kernel trick"],exp:"Malgre 'regression' dans le nom, c'est un algorithme de classification binaire."},
+    {q:"Comment KNN determine la classe d'un nouveau point ?",a:3,opts:["Par regression lineaire","Par calcul de probabilite","Par entropie maximale","Vote majoritaire des k voisins les plus proches"],exp:"KNN calcule la distance aux k plus proches voisins et predit la classe majoritaire."},
+    {q:"Un arbre de decision entierement developpe (max depth) presente quel probleme ?",a:0,opts:["Overfitting — il memorise le dataset d'entrainement","Underfitting — trop simple","Temps de prediction trop long","Ne converge pas"],exp:"Un arbre trop profond memorise le bruit d'entrainement. Solution : pruning ou max_depth."},
+    {q:"model.predict_proba([[150]]) retourne :",a:2,opts:["La classe predite","Le gradient","Les probabilites [P(y=0), P(y=1)]","La log-loss"],exp:"predict_proba retourne un tableau de probabilites pour chaque classe."},
+    {q:"Quelle est la difference entre w et b dans la regression logistique ?",a:1,opts:["w est le biais, b est le poids","w sont les poids (coefficients), b est le biais","w est le learning rate, b est le nombre d'iterations","Pas de difference"],exp:"w (weights) = coefficients multiplicateurs des features. b (bias) = intercept."},
+    {q:"Normaliser les features est necessaire pour quel algorithme ?",a:0,opts:["KNN","Arbre de Decision","Regression Logistique (moins critique)","Tous les algorithmes"],exp:"KNN utilise des distances — sans normalisation, les features a grande echelle dominent."},
+    {q:"La profondeur d'un arbre de decision impacte :",a:3,opts:["Uniquement le temps d'entrainement","Uniquement la precision","Uniquement la memoire","L'overfitting et la complexite du modele"],exp:"Arbre profond → overfitting. Arbre peu profond → underfitting. Chercher le bon compromis."},
+    {q:"Quel modele est le plus interpretable ?",a:2,opts:["SVM","KNN","Arbre de Decision","Reseau de neurones"],exp:"L'arbre de decision produit des regles if/else lisibles par un humain — tres interpretable."},
+  ],
+  maths: [
+    {q:"Calculer σ(z=2) (arrondi).",a:1,opts:["0.5","0.88","0.95","0.73"],exp:"σ(2) = 1/(1+e⁻²) = 1/(1+0.135) ≈ 0.880"},
+    {q:"H(S) avec 4 OUI et 4 NON vaut :",a:0,opts:["1.0","0.5","0.0","0.81"],exp:"P(OUI)=P(NON)=0.5. H = -(0.5×log2(0.5)+0.5×log2(0.5)) = -(0.5×(-1)+0.5×(-1)) = 1.0"},
+    {q:"Distance euclidienne entre P=(3,3) et A=(1,2) ?",a:2,opts:["3.0","2.0","sqrt(5)≈2.24","sqrt(8)≈2.83"],exp:"d = sqrt((3-1)²+(3-2)²) = sqrt(4+1) = sqrt(5) ≈ 2.24"},
+    {q:"MSE pour ŷ=[0,0,0] et y=[2,4,5] ?",a:3,opts:["5.5","6.0","7.5","8.6"],exp:"MSE = (1/6)×(4+16+25) = 45/6 = 7.5 (si on divise par m=3 : 45/3=15). Formule (1/2m): 45/(2×3)=7.5"},
+    {q:"Si TP=40, FP=10, Precision = ?",a:1,opts:["80%","80% = 40/50","75%","40%"],exp:"Precision = TP/(TP+FP) = 40/(40+10) = 40/50 = 0.80 = 80%"},
+    {q:"Si TP=40, FN=10, Recall = ?",a:0,opts:["80%","75%","90%","40%"],exp:"Recall = TP/(TP+FN) = 40/(40+10) = 40/50 = 80%"},
+    {q:"F1-Score avec Precision=0.8 et Recall=0.9 ?",a:2,opts:["0.85","0.80","0.847","0.72"],exp:"F1 = 2×(0.8×0.9)/(0.8+0.9) = 2×0.72/1.7 = 1.44/1.7 ≈ 0.847"},
+    {q:"Gradient Descent : si ∂J/∂w = -3 et α = 0.1, nouvelle valeur de w si w=2 ?",a:1,opts:["2.3","1.7","2.3","1.3"],exp:"w := w - α×gradient = 2 - 0.1×(-3) = 2 + 0.3 = 2.3"},
+    {q:"σ(z) = 0.3. Quelle est la classe predite (seuil=0.5) ?",a:0,opts:["Classe 0 (car 0.3 < 0.5)","Classe 1 (car proche de 0.5)","Indefini","Classe 0 ou 1 aleatoirement"],exp:"P(y=1) = 0.3 < 0.5 → classe predite = 0"},
+    {q:"H(S=pur) pour un ensemble de 5 examples tous de classe 1 ?",a:2,opts:["1.0","0.5","0.0","Indefini"],exp:"H = -(1×log2(1)) = -(1×0) = 0. Entropie nulle = ensemble pur."},
+    {q:"Score SVM : w1=-1, w2=1, b=0, point (3,3) =?",a:1,opts:["0","0","3","-3"],exp:"Score = (-1)×3 + 1×3 + 0 = -3+3 = 0. Point sur l'hyperplan."},
+    {q:"Marge SVM si w = [-1, 1] ?",a:2,opts:["1","1.41","sqrt(2)≈1.41","2"],exp:"||w|| = sqrt((-1)²+1²) = sqrt(2). Marge = 2/||w|| = 2/sqrt(2) = sqrt(2) ≈ 1.414."},
+    {q:"Accuracy si TP=35, TN=50, FP=10, FN=5, total=100 ?",a:3,opts:["80%","75%","90%","85%"],exp:"Accuracy = (TP+TN)/total = (35+50)/100 = 85/100 = 85%"},
+    {q:"log2(1/2) = ?",a:0,opts:["-1","1","0.5","-0.5"],exp:"log2(1/2) = log2(2⁻¹) = -1. Important pour le calcul de l'entropie."},
+    {q:"Gain d'information si H(S)=1 et H(S|A)=0 ?",a:3,opts:["0","0.5","2","1"],exp:"IG = H(S) - H(S|A) = 1 - 0 = 1. Le gain maximal possible = entropie initiale."},
+  ]
+};
+
+const qcmInited = {fond:false, modeles:false, maths:false};
+const qcmState = {fond:{idx:0,score:0,answered:0,done:false}, modeles:{idx:0,score:0,answered:0,done:false}, maths:{idx:0,score:0,answered:0,done:false}};
+
+function initQCM(type) {
+  const container = document.getElementById('qcm-' + (type==='fond'?'fond':type) + '-container');
+  renderQCM(type, container);
+}
+
+function renderQCM(type, container) {
+  const data = qcmData[type];
+  const state = qcmState[type];
+  if (state.done) {
+    showQCMResult(type, container, data);
+    return;
+  }
+  const q = data[state.idx];
+  const letters = ['A','B','C','D'];
+  let html = '<div class="quiz-progress">' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:' + ((state.idx/data.length)*100) + '%"></div></div>' +
+    '<span class="progress-label">' + (state.idx+1) + ' / ' + data.length + '</span>' +
+    '</div>' +
+    '<div class="quiz-container">' +
+    '<div class="question-card">' +
+    '<div class="q-meta">' +
+    '<span class="q-num">Question ' + (state.idx+1) + '</span>' +
+    '<span class="tag ' + (type==='fond'?'tag-blue':type==='modeles'?'tag-purple':'tag-green') + '">' + (type==='fond'?'Fondamentaux':type==='modeles'?'Modeles':'Calculs') + '</span>' +
+    '</div>' +
+    '<div class="q-text">' + q.q + '</div>' +
+    '<div class="options" id="options-' + type + '">';
+  
+  q.opts.forEach((o,i) => {
+    html += '<div class="option" onclick="selectOpt(\'' + type + '\',' + i + ')" data-idx="' + i + '">' +
+      '<div class="opt-letter">' + letters[i] + '</div>' +
+      '<div class="opt-text">' + o + '</div>' +
+      '</div>';
+  });
+  
+  html += '</div>' +
+    '<div class="explanation" id="expl-' + type + '">' + q.exp + '</div>' +
+    '</div>' +
+    '<div class="quiz-actions">' +
+    '<button class="btn btn-primary" id="nextBtn-' + type + '" onclick="nextQCM(\'' + type + '\')" style="display:none">Question Suivante</button>' +
+    '<button class="btn btn-ghost btn-sm" onclick="skipQCM(\'' + type + '\')">Passer</button>' +
+    '<span style="margin-left:auto;font-family:var(--mono);font-size:0.85rem;color:var(--text3)">Score: ' + state.score + '/' + state.answered + '</span>' +
+    '</div>' +
+    '</div>';
+  
+  container.innerHTML = html;
+}
+
+function selectOpt(type, idx) {
+  const state = qcmState[type];
+  const data = qcmData[type];
+  const q = data[state.idx];
+  const opts = document.querySelectorAll('#options-' + type + ' .option');
+  opts.forEach(o => o.classList.add('locked'));
+  opts[idx].classList.add(idx===q.a ? 'correct' : 'wrong');
+  if (idx!==q.a) opts[q.a].classList.add('correct');
+  document.getElementById('expl-' + type).classList.add('show');
+  document.getElementById('nextBtn-' + type).style.display = 'inline-flex';
+  if (idx===q.a) { state.score++; showNotif('Correct !','success'); }
+  else showNotif('Incorrect — voir explication','error');
+  state.answered++;
+}
+
+function nextQCM(type) {
+  const state = qcmState[type];
+  const data = qcmData[type];
+  state.idx++;
+  if (state.idx >= data.length) {
+    state.done = true;
+    const container = document.getElementById('qcm-' + type + '-container');
+    showQCMResult(type, container, data);
+    return;
+  }
+  const container = document.getElementById('qcm-' + type + '-container');
+  renderQCM(type, container);
+}
+
+function skipQCM(type) {
+  const state = qcmState[type];
+  const data = qcmData[type];
+  state.idx++;
+  state.answered++;
+  if (state.idx >= data.length) {
+    state.done = true;
+    const container = document.getElementById('qcm-' + type + '-container');
+    showQCMResult(type, container, data);
+    return;
+  }
+  const container = document.getElementById('qcm-' + type + '-container');
+  renderQCM(type, container);
+}
+
+function showQCMResult(type, container, data) {
+  const state = qcmState[type];
+  const pct = Math.round((state.score/data.length)*100);
+  const cls = pct>=80?'excellent':pct>=60?'good':'needs-work';
+  const msg = pct>=80?'Excellent ! Mention tres bien garantie !':pct>=60?'Bien ! Quelques revisions supplementaires recommandees.':'A retravailler — consultez les cours correspondants.';
+  container.innerHTML = '<div class="quiz-result">' +
+    '<div style="font-size:1rem;color:var(--text2);margin-bottom:8px;">Quiz termine</div>' +
+    '<div class="result-score ' + cls + '">' + state.score + ' / ' + data.length + '</div>' +
+    '<div class="result-msg">' + pct + '% — ' + msg + '</div>' +
+    '<div class="score-grid">' +
+    '<div class="score-item"><div class="val text-green">' + state.score + '</div><div class="lbl">Correctes</div></div>' +
+    '<div class="score-item"><div class="val text-red">' + (data.length-state.score) + '</div><div class="lbl">Incorrectes</div></div>' +
+    '<div class="score-item"><div class="val" style="color:var(--accent)">' + pct + '%</div><div class="lbl">Score</div></div>' +
+    '</div>' +
+    '<div class="flex gap-3 mt-4">' +
+    '<button class="btn btn-primary" onclick="resetQCM(\'' + type + '\')">Recommencer</button>' +
+    '<button class="btn btn-outline" onclick="navigate(\'home\')">Accueil</button>' +
+    '</div>' +
+    '</div>';
+}
+
+function resetQCM(type) {
+  qcmState[type] = {idx:0,score:0,answered:0,done:false};
+  const container = document.getElementById('qcm-' + type + '-container');
+  renderQCM(type, container);
+}
+
+// ============ FLASHCARDS ============
+const flashcardsData = [
+  {front:"Formule de la Regression Lineaire Multiple",back:"y = w0 + w1x1 + w2x2 + ... + wpxp\nw0=biais, wi=poids, xi=features"},
+  {front:"Formule MSE (Mean Squared Error)",back:"J(θ) = (1/2m) × Σ(ŷᵢ - yᵢ)²\nm=nombre exemples"},
+  {front:"Formule mise a jour Gradient Descent",back:"θ0 := θ0 - α × (1/m)Σ(ŷᵢ-yᵢ)\nθ1 := θ1 - α × (1/m)Σ(ŷᵢ-yᵢ)xᵢ"},
+  {front:"Fonction Sigmoide",back:"σ(z) = 1 / (1 + e^(-z))\nz=0 → 0.5, z→+∞ → 1, z→-∞ → 0"},
+  {front:"Log-Loss (Binary Cross-Entropy)",back:"L = -[y×log(p) + (1-y)×log(1-p)]\np=probabilite predite, y=vraie etiquette"},
+  {front:"Distance Euclidienne (2D)",back:"d(A,B) = sqrt((x1A-x1B)² + (x2A-x2B)²)"},
+  {front:"Entropie de Shannon",back:"H(S) = -Σ pᵢ × log₂(pᵢ)\nH=0 pur, H=1 melange max (binaire)"},
+  {front:"Gain d'Information (ID3)",back:"IG(S,A) = H(S) - Σ (|Sv|/|S|) × H(Sv)\nChoisir A qui maximise IG"},
+  {front:"Indice de Gini",back:"Gini = 1 - Σ pᵢ²\nGini=0 pur, Gini=0.5 max melange"},
+  {front:"Hyperplan SVM",back:"w1x1 + w2x2 + b = 0\nClasse+1: score≥+1, Classe-1: score≤-1"},
+  {front:"Marge SVM",back:"Marge = 2 / ||w||\n||w|| = sqrt(Σwᵢ²)\nMaximiser marge = minimiser ||w||"},
+  {front:"Accuracy",back:"Accuracy = (TP + TN) / Total\n= (TP+TN)/(TP+TN+FP+FN)"},
+  {front:"Precision vs Recall",back:"Precision = TP/(TP+FP)\nRecall = TP/(TP+FN)\nPrecision: quand predit+, a-t-on raison ?\nRecall: parmi vrais+, combien trouves ?"},
+  {front:"F1-Score",back:"F1 = 2 × (P × R) / (P + R)\nMoyenne harmonique Precision/Recall"},
+  {front:"TP, TN, FP, FN",back:"TP: predit1, reel1 (Vrai Positif)\nTN: predit0, reel0 (Vrai Negatif)\nFP: predit1, reel0 (Faux Positif)\nFN: predit0, reel1 (Faux Negatif)"},
+  {front:"Algorithme KNN — 4 etapes",back:"1. Calculer distances a tous les points\n2. Trier par distance croissante\n3. Prendre k plus proches\n4. Vote majoritaire → classe predite"},
+  {front:"Apprentissage Supervise vs Non-Supervise",back:"Supervise: donnees etiquetees (X,y)\n→ Classification, Regression\nNon-Supervise: pas de labels\n→ Clustering, Reduction dimensionnelle"},
+  {front:"Overfitting vs Underfitting",back:"Overfitting: bon train, mauvais test\n→ trop complexe, memorise le bruit\nUnderfitting: mauvais train ET test\n→ trop simple, ne capture pas le pattern"},
+  {front:"Learning Rate α — Impact",back:"α trop grand → divergence (MSE augmente)\nα trop petit → convergence lente\nα optimal → convergence rapide et stable"},
+  {front:"gradient de Log-Loss",back:"∂L/∂θ = (p - y) × x\np-y = erreur\nMise a jour: θ := θ - α×(p-y)×x"},
+];
+let fcInited = false;
+let fcIdx = 0;
+function initFlashcards() { renderFlashcard(); }
+function renderFlashcard() {
+  const fc = flashcardsData[fcIdx];
+  document.getElementById('fcFront').textContent = fc.front;
+  document.getElementById('fcBack').textContent = fc.back;
+  document.getElementById('fcBackTitle').textContent = 'Reponse';
+  document.getElementById('fcCounter').textContent = (fcIdx+1) + ' / ' + flashcardsData.length;
+  document.getElementById('flashcard').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('flashcard').classList.toggle('flipped'); }
+function fcNext() { fcIdx=(fcIdx+1)%flashcardsData.length; renderFlashcard(); }
+function fcPrev() { fcIdx=(fcIdx-1+flashcardsData.length)%flashcardsData.length; renderFlashcard(); }
+function fcShuffle() { fcIdx=Math.floor(Math.random()*flashcardsData.length); renderFlashcard(); showNotif('Carte aleatoire !','info'); }
+
+// ============ EXAM BLANC ============
+const examQCM = qcmData.fond.slice(0,5).concat(qcmData.modeles.slice(0,5)).concat(qcmData.maths.slice(0,5)).concat([
+  {q:"Quelle est la relation entre Precision et Recall quand le seuil diminue ?",a:0,opts:["Recall augmente, Precision diminue","Les deux augmentent","Les deux diminuent","Recall diminue, Precision augmente"],exp:"Abaisser le seuil classe plus de cas comme positifs → plus de TP (Recall up) mais aussi plus de FP (Precision down)."},
+  {q:"Quelle initialisation utilise generalement le Gradient Descent ?",a:1,opts:["Valeurs aleatoires elevees","w=0, b=0","w=1, b=1","Valeurs aleatoires normales"],exp:"Convention courante : initialiser a 0. D'autres methodes existent (Xavier, He) pour les reseaux de neurones."},
+  {q:"Pourquoi l'entropie log₂ et pas log₁₀ ?",a:2,opts:["Plus rapide a calculer","Resultat entre 0 et 100","Resultat entre 0 et 1 (entropie en bits)","Pas de raison particuliere"],exp:"log₂ donne l'entropie en bits. log₂(p) signifie le nombre de bits necessaires pour coder un evenement de probabilite p."},
+  {q:"Une maladie rare a 1% de prevalence. Un modele predit toujours 0. Accuracy = ?",a:3,opts:["1%","50%","Indefinie","99%"],exp:"99% des cas sont vraiment 0, donc predire toujours 0 donne 99% d'accuracy ! C'est le paradoxe de l'accuracy sur classes desequilibrees → utiliser F1-Score ou Recall."},
+  {q:"Que fait model.fit(X_train, y_train) dans sklearn ?",a:1,opts:["Initialise le modele","Entraine le modele sur les donnees train","Evalue le modele","Prepare les donnees"],exp:"fit() = phase d'apprentissage. Le modele ajuste ses parametres pour minimiser l'erreur sur X_train."},
+]);
+let examTimerVal = 5400; // 90 min
+let examQCMAnswers = {};
+
+function startExamBlanc() {
+  document.getElementById('exam-blanc-start').classList.add('hidden');
+  document.getElementById('exam-blanc-body').classList.remove('hidden');
+  // Render QCM
+  const container = document.getElementById('exam-qcm-container');
+  const letters = ['A','B','C','D'];
+  let html = '';
+  examQCM.forEach((q,qi) => {
+    html += '<div class="question-card" style="margin-bottom:12px;">' +
+      '<div class="q-meta"><span class="q-num">Q' + (qi+1) + '</span><span class="tag tag-blue">2 pts</span></div>' +
+      '<div class="q-text">' + q.q + '</div>' +
+      '<div class="options" id="exam-opts-' + qi + '">';
+    q.opts.forEach((o,i) => {
+      html += '<div class="option" onclick="selectExamQCM(' + qi + ',' + i + ')" data-idx="' + i + '">' +
+        '<div class="opt-letter">' + letters[i] + '</div><div class="opt-text">' + o + '</div>' +
+        '</div>';
+    });
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+  // Start timer
+  examTimerVal = 5400;
+  examTimerInterval = setInterval(() => {
+    examTimerVal--;
+    const m = Math.floor(examTimerVal/60);
+    const s = examTimerVal%60;
+    const el = document.getElementById('examTimer');
+    el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    el.className = 'exam-timer ' + (examTimerVal > 600 ? 'ok' : '');
+    if (examTimerVal===0) { clearInterval(examTimerInterval); submitExam(); }
+  }, 1000);
+}
+
+function selectExamQCM(qi, idx) {
+  examQCMAnswers[qi] = idx;
+  const opts = document.querySelectorAll('#exam-opts-' + qi + ' .option');
+  opts.forEach(o => o.classList.remove('selected'));
+  opts[idx].classList.add('selected');
+}
+
+function switchExamTab(tab, el) {
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('examTab' + tab).classList.add('active');
+}
+
+function submitExam() {
+  clearInterval(examTimerInterval);
+  let score = 0;
+  let corrHtml = '<div style="margin-top:12px;">';
+  examQCM.forEach((q,i) => {
+    const ans = examQCMAnswers[i];
+    const correct = ans === q.a;
+    if (correct) score += 2;
+    const letters = ['A','B','C','D'];
+    corrHtml += '<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:0.85rem;">' +
+      '<div style="display:flex;gap:8px;align-items:center;">' +
+      '<span class="tag ' + (correct?'tag-green':'tag-red') + '">Q' + (i+1) + ' ' + (correct?'✓':'✗') + '</span>' +
+      '<span>' + q.q + '</span>' +
+      '</div>' +
+      '<div style="margin-top:4px;color:var(--text2);">' +
+      'Votre reponse: ' + (ans!==undefined?letters[ans]+' — '+q.opts[ans]:'Non repondu') + '<br>' +
+      (!correct?'<span style="color:var(--accent3);">Bonne reponse: ' + letters[q.a] + ' — ' + q.opts[q.a] + '</span><br>':'') +
+      '<em style="color:var(--text3);">' + q.exp + '</em>' +
+      '</div>' +
+      '</div>';
+  });
+  corrHtml += '</div>';
+  const totalEst = score + 30; // estimation B et C
+  const pct = Math.min(Math.round((totalEst/100)*100),100);
+  const cls = pct>=16?'excellent':pct>=12?'good':'needs-work';
+  document.getElementById('exam-blanc-body').classList.add('hidden');
+  document.getElementById('exam-blanc-result').classList.remove('hidden');
+  document.getElementById('examFinalScore').className = 'result-score ' + cls;
+  document.getElementById('examFinalScore').textContent = score + '/20 (Partie A)';
+  document.getElementById('examFinalMsg').textContent = 'Partie A : ' + score + '/20 pts. Complement avec Parties B et C. Note estimee avec effort : ~' + totalEst + '/100';
+  document.getElementById('examCorrectionA').innerHTML = corrHtml;
+  document.getElementById('examCorrectionBC').innerHTML = 
+    '<div class="note-box">' +
+    '<strong>Correction Partie B :</strong><br><br>' +
+    '<strong>B1 :</strong> ŷᵢ=0 pour tous. J(θ)=7.5. ∂J/∂θ0=(2+4+5)/3×2=(-11)/3/... voir exercices guides E1<br><br>' +
+    '<strong>B2 :</strong> z=0.8×2-1=0.6. p=σ(0.6)=1/(1+e⁻⁰·⁶)≈0.645. Classe=1. L=-log(0.645)≈0.439<br><br>' +
+    '<strong>B3 :</strong> d(P=5,A=2)=3, d(P,B=4)=1, d(P,C=6)=1, d(P,D=7)=2. k=3: B,C,D → vote: cl0=1,cl1=2 → Classe 1<br><br>' +
+    '<strong>B4 :</strong> H(S)=1. Gain(Taille)=1-0=1. Gain(Poids)=1-0=1. Les deux sont equivalents (arbre parfait dans les 2 cas)<br><br>' +
+    '<strong>B5 :</strong> Acc=85%, Prec=77.8%, Recall=87.5%, F1=82.4%. Maladie rare → Recall prioritaire' +
+    '</div>' +
+    '<div class="note-box" style="margin-top:12px;">' +
+    '<strong>Correction Partie C :</strong><br><br>' +
+    '<strong>C1 :</strong> Overfitting: train≈100%, test=60% → trop complexe → solution: regularisation, plus de donnees. Underfitting: train=60%, test=60% → trop simple → solution: modele plus complexe<br><br>' +
+    '<strong>C2 :</strong> Separer train/test pour evaluer la generalisation. Cross-validation: k folds, entrainer k fois, moyenner → plus robuste qu\'un seul split<br><br>' +
+    '<strong>C3 :</strong> KNN: pas d\'entrainement, interpretatif, lent a predire. Decision Tree: rapide, tres interpretatif, overfitting. SVM: puissant, peu interpretatif, lent avec grands datasets<br><br>' +
+    '<strong>C4 :</strong> α trop grand → divergence. α trop petit → lenteur. Choisir par validation croisee, learning rate schedule, Adam optimizer' +
+    '</div>';
+  window.scrollTo(0,0);
+}
+
+function showExamCorrection() { submitExam(); }
+function resetExam() {
+  clearInterval(examTimerInterval);
+  examQCMAnswers = {};
+  document.getElementById('exam-blanc-start').classList.remove('hidden');
+  document.getElementById('exam-blanc-body').classList.add('hidden');
+  document.getElementById('exam-blanc-result').classList.add('hidden');
+}
+
+// ============ EXAM RAPIDE ============
+const rapideQCM = [
+  ...qcmData.fond.slice(0,4),
+  ...qcmData.modeles.slice(0,3),
+  ...qcmData.maths.slice(0,3),
+];
+let rapideTimer = 1200;
+let rapideInterval = null;
+let rapideAnswers = {};
+
+function startExamRapide() {
+  document.getElementById('exam-rapide-start').classList.add('hidden');
+  document.getElementById('exam-rapide-body').classList.remove('hidden');
+  const letters=['A','B','C','D'];
+  let html = '<div class="exam-section"><div class="exam-section-title">QCM (10 questions — 20 pts)</div>';
+  rapideQCM.forEach((q,i) => {
+    html += '<div class="question-card" style="margin-bottom:12px;">' +
+      '<div class="q-meta"><span class="q-num">Q' + (i+1) + '</span></div>' +
+      '<div class="q-text">' + q.q + '</div>' +
+      '<div class="options" id="rapide-opts-' + i + '">';
+    q.opts.forEach((o,j) => {
+      html += '<div class="option" onclick="selectRapide(' + i + ',' + j + ')">' +
+        '<div class="opt-letter">' + letters[j] + '</div><div class="opt-text">' + o + '</div>' +
+        '</div>';
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  document.getElementById('exam-rapide-content').innerHTML = html;
+  rapideTimer = 1200;
+  rapideInterval = setInterval(() => {
+    rapideTimer--;
+    const m=Math.floor(rapideTimer/60), s=rapideTimer%60;
+    const el=document.getElementById('examRapideTimer');
+    el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    el.className='exam-timer '+(rapideTimer>300?'ok':'');
+    if(rapideTimer===0){clearInterval(rapideInterval);submitExamRapide();}
+  },1000);
+}
+
+function selectRapide(qi,idx) {
+  rapideAnswers[qi]=idx;
+  const opts = document.querySelectorAll('#rapide-opts-'+qi+' .option');
+  opts.forEach(o => o.classList.remove('selected'));
+  opts[idx].classList.add('selected');
+}
+
+function submitExamRapide() {
+  clearInterval(rapideInterval);
+  let score=0;
+  const letters=['A','B','C','D'];
+  let corrHtml='';
+  rapideQCM.forEach((q,i) => {
+    const ans=rapideAnswers[i];
+    const ok=ans===q.a;
+    if(ok) score+=2;
+    corrHtml+='<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:0.82rem;">' +
+      '<span class="tag ' + (ok?'tag-green':'tag-red') + '" style="margin-right:8px;">Q' + (i+1) + ' ' + (ok?'✓':'✗') + '</span>' +
+      q.q + '<br>' +
+      (!ok?'<span style="color:var(--accent3);">Bonne reponse: ' + letters[q.a] + ' — ' + q.opts[q.a] + '</span><br>':'') +
+      '<em style="color:var(--text3);">' + q.exp + '</em>' +
+      '</div>';
+  });
+  document.getElementById('exam-rapide-body').classList.add('hidden');
+  document.getElementById('exam-rapide-result').classList.remove('hidden');
+  const pct=Math.round((score/20)*100);
+  document.getElementById('rapideScore').textContent=score+'/20';
+  document.getElementById('rapideScore').className='result-score '+(pct>=80?'excellent':pct>=60?'good':'needs-work');
+  document.getElementById('rapideMsg').textContent=pct>=80?'Excellent score !':pct>=60?'Bon travail, continuez a reviser !':'Revoir les cours et recommencer.';
+  document.getElementById('rapideCorrection').innerHTML=corrHtml;
+}
+
+function resetRapide() {
+  rapideAnswers={};
+  document.getElementById('exam-rapide-start').classList.remove('hidden');
+  document.getElementById('exam-rapide-body').classList.add('hidden');
+  document.getElementById('exam-rapide-result').classList.add('hidden');
+}
+</script>
+</body>
+</html>
