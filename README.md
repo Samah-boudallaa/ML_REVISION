@@ -136,6 +136,6 @@ Les contributions sont les bienvenues.
 4. Envoi d’un Pull Request
 
 ----
-Remarque
+## Remarque
 
 Ce projet est conçu comme un outil de révision complet pour les étudiants en data science et machine learning.
